@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0d3b36">
-  <meta name="description" content="新品测试空运与海运优先级计算器：按产品点、有效提前天数和空海运增量成本排列空运优先级。">
+  <meta name="description" content="新品测试空运与海运优先级计算器：按产品点、有效提前天数以及空运与海运分摊成本排列空运优先级。">
   <title>新品空运优先级计算器｜AAI</title>
   <style>
     :root{
@@ -254,11 +254,11 @@
       <div>
         <div class="eyebrow">新品首批测款 · 空运 / 海运决策</div>
         <h1>把空运费花在最值得提前验证的产品上</h1>
-        <p class="hero-copy">本工具衡量的不是首批测试能否回本，而是：<strong>每多花 1 元空运增量成本，在产品成功情景下能提前释放多少毛利潜力</strong>。测试采购价只用于测款预算，不进入空运优先级。</p>
+        <p class="hero-copy">本工具衡量的不是首批测试能否回本，而是：<strong>空运相对海运每多花 1 元，能在产品成功情景下提前释放多少毛利潜力</strong>。海运按SKU占用的体积或重量比例分摊整柜实际成本。</p>
       </div>
       <div class="formula-card">
         <div class="label">核心指标 · 空运加速指数</div>
-        <div class="formula-main">AAI = 提前毛利潜力 ÷ 空海运增量成本</div>
+        <div class="formula-main">AAI = 提前毛利潜力 ÷（空运成本 − 海运分摊成本）</div>
         <div class="formula-line"></div>
         <p class="formula-sub">年毛利潜力 = 产品点 × ¥120,000；提前毛利潜力 = 年毛利潜力 × 有效提前天数 ÷ 365</p>
         <div class="formula-badges"><span>新增产品默认0.1点</span><span>AAI≥1为成功情景经济线</span><span>按预算选择截止点</span></div>
@@ -270,11 +270,11 @@
     <div class="wrap">
       <div class="notice">
         <div class="notice-icon">i</div>
-        <div><b>填写原则：</b>包装必须使用最终外箱尺寸和毛重；每个产品填写统一口径的产品点，<b>1点代表产品成功后年毛利潜力¥120,000</b>。新增产品默认0.1点，可逐个修改。主排名不使用成功率，结果是成功情景下的相对优先级。</div>
+        <div><b>填写原则：</b>包装必须使用最终外箱尺寸和毛重；每个产品填写统一口径的产品点，<b>1点代表产品成功后年毛利潜力¥120,000</b>。新增产品默认0.1点，可逐个修改。海运使用整柜全程实际成本，按体积占比和重量占比中较高者分摊到SKU。</div>
       </div>
 
       <section class="section" id="settings">
-        <div class="section-head"><div><h2>1. 全局参数</h2><p>默认值可以直接使用，正式执行前请替换为货代账单和公司最近6–12个月整柜实装数据。</p></div></div>
+        <div class="section-head"><div><h2>1. 全局参数</h2><p>空运使用货代实际结算口径；海运使用40HQ全程实际成本和公司有效实装容量。</p></div></div>
         <div class="settings-grid" id="globalSettings"></div>
       </section>
 
@@ -308,7 +308,7 @@
         <div class="method-grid">
           <details class="method" open>
             <summary>为什么测试采购价不进入排序？</summary>
-            <div class="method-copy">同一批测试品无论走空运还是海运，都需要支付测试采购款，因此比较运输方式时会相互抵消。测试采购价只进入首批预算，不进入产品点或AAI。<div class="equation">成功情景毛利口径净值<br>= 提前毛利潜力 −（空运成本 − 海运成本）</div></div>
+            <div class="method-copy">同一批测试品无论走空运还是海运，都需要支付测试采购款，因此比较运输方式时会相互抵消。测试采购价只进入首批预算，不进入产品点或AAI。海运虽然与其他SKU共用整柜，仍按占柜比例分摊实际运输成本。<div class="equation">成功情景毛利口径净值<br>= 提前毛利潜力 −（空运成本 − 海运分摊成本）</div></div>
           </details>
           <details class="method" open>
             <summary>有效提前天数怎么填？</summary>
@@ -319,8 +319,8 @@
             <div class="method-copy">系统按每个外箱分别取实重和体积重中的较大值，再按0.5kg或1kg进位。若货代最终确认了计费重，可以直接覆盖系统计算值。<div class="equation">单箱体积重(kg) = 长(cm) × 宽(cm) × 高(cm) ÷ 抛重除数<br>总计费重 = 箱数 × 向上进位(MAX(单箱毛重, 单箱体积重))</div></div>
           </details>
           <details class="method">
-            <summary>整柜海运为什么是“机会成本”？</summary>
-            <div class="method-copy">海运机会成本是这个SKU占用40HQ稀缺容量的价值，不一定是货代单独开给这个SKU的账单。柜子长期满载时，放入新品会挤掉其他货或更早触发下一柜，因此应分摊占柜成本；已有确定空位、无论是否放入该SKU整柜费用都不变时，干线边际成本可设为0。<div class="equation">海运机会成本<br>= 40HQ总成本 × MAX（SKU体积 ÷ 有效装载体积，SKU实重 ÷ 有效装载重量）</div>例如整柜¥28,800、有效容量68m³/26,000kg，一个产品占0.5m³和100kg，体积占比0.735%高于重量占比0.385%，海运机会成本约为¥211.76。默认计算用于单品排序，不等同于最终发票分摊；如果一组新品会导致多开整柜，应在排序后再做一次装柜组合校正。</div>
+            <summary>海运分摊成本怎么计算？</summary>
+            <div class="method-copy">公司虽然不会因为测款货额外开柜，但每个40HQ约US$8,000的全程运输费用仍是真实发生的成本。为了比较同一批货走空运还是海运，应把整柜成本按SKU占用容量分摊，而不是把海运记为0。<div class="equation">海运分摊成本<br>= 整柜全程成本 × MAX（SKU体积 ÷ 有效装载体积，SKU实重 ÷ 有效装载重量）+ 每SKU海运附加费</div>取较高占比是因为柜子可能先被体积装满，也可能先达到载重限制。该金额是内部成本分摊，不代表货代会为每个SKU单独开票。</div>
           </details>
           <details class="method">
             <summary>产品点怎么填？</summary>
@@ -332,10 +332,10 @@
           </details>
           <details class="method">
             <summary>阈值与最终选择</summary>
-            <div class="method-copy">AAI=1是<strong>成功情景经济边界</strong>：提前毛利潜力恰好等于空运增量成本。默认0.1点、提前35天时，边界约为¥1,150.68；空运增量成本不超过该金额可选空运，超过则选海运（预算和强制规则仍优先）。这不是成功率加权后的真实期望盈亏线；预算受限时仍应优先按AAI排序，再观察累计增量成本选择截止位置。</div>
+            <div class="method-copy">AAI=1是<strong>成功情景经济边界</strong>：提前毛利潜力恰好等于空运相对海运分摊多出的成本。默认0.1点、提前35天时，可承受的空运新增成本为¥1,150.68；只有先计算具体SKU的海运分摊成本，才能换算该SKU的准确计费重边界（预算和强制规则仍优先）。这不是成功率加权后的真实期望盈亏线；预算受限时仍应优先按AAI排序，再观察累计空运新增成本选择截止位置。</div>
           </details>
         </div>
-        <div class="sources">参考规则：空运体积重应按承运商合同执行，FedEx公开说明采用实重与体积重较高者；40HQ名义参数可参考承运商规格，但有效装载量应采用公司历史实装值。<a href="https://www.fedex.com/en-ca/resources-tools/dimensional-weight.html" target="_blank" rel="noopener">FedEx体积重说明</a> · <a href="https://www.maersk.com/~/media_sc9/maersk/local-information/files/africa/south-africa/important-information/container-type-and-sizes/dry-equipment-specifications-updated.pdf" target="_blank" rel="noopener">Maersk集装箱规格</a></div>
+        <div class="sources">参考规则：空运体积重应按承运商合同执行，FedEx公开说明采用实重与体积重较高者；40HQ有效装载量应采用公司历史实装值。<a href="https://www.fedex.com/en-ca/resources-tools/dimensional-weight.html" target="_blank" rel="noopener">FedEx体积重说明</a></div>
       </section>
     </div>
   </main>
@@ -349,9 +349,9 @@
     (function(){
       'use strict';
 
-      const STORAGE_KEY='air-sea-aai-calculator-v2';
-      const LEGACY_STORAGE_KEY='air-sea-aai-calculator-v1';
-      const STATE_VERSION=2;
+      const STORAGE_KEY='air-sea-aai-calculator-v3';
+      const LEGACY_STORAGE_KEYS=['air-sea-aai-calculator-v2','air-sea-aai-calculator-v1'];
+      const STATE_VERSION=3;
       const PRODUCT_POINT_ANNUAL_GP=120000;
       const DEFAULT_PRODUCT_POINTS=.1;
       const DAYS_PER_YEAR=365;
@@ -373,23 +373,22 @@
 
       function defaultGlobals(){return {
         airRate:40, divisor:6000, rounding:0.5, airFixed:0,
-        seaUsd:4000, fx:7.2, volumeCapacity:68, weightCapacity:26000, seaFixed:0, seaMode:'max',
+        seaUsd:8000, fx:7.2, volumeCapacity:68, weightCapacity:26000, seaFixed:0,
         defaultDays:35, strongThreshold:2, candidateThreshold:1,
         balanceMode:'budget', budget:'', topN:3, selectionThreshold:1,
-        boundaryPoints:.1, boundaryDays:35, boundarySeaCost:0, boundaryActualWeight:''
+        boundaryPoints:.1, boundaryDays:35, boundaryVolume:.1, boundaryGross:10, boundaryActualWeight:''
       }}
 
       function blankProduct(index){return {
         id:uid(),sku:'SKU-'+String(index||1).padStart(3,'0'),name:'',category:'',transportRule:'auto',
-        qty:10,testUnitPrice:100,packMode:'carton',cartons:1,length:60,width:50,height:40,grossPerCarton:8,batchVolume:0.12,batchGross:8,confirmedChargeable:'',manualSeaCost:'',
+        qty:10,testUnitPrice:100,packMode:'carton',cartons:1,length:60,width:50,height:40,grossPerCarton:8,batchVolume:0.12,batchGross:8,confirmedChargeable:'',
         productPoints:DEFAULT_PRODUCT_POINTS,days:'',notes:''
       }}
 
       function normalizeGlobals(raw){
         const g=Object.assign(defaultGlobals(),raw||{});
-        if(!['max','volume','weight','zero','manual'].includes(g.seaMode))g.seaMode='max';
         if(!['budget','topN'].includes(g.balanceMode))g.balanceMode='budget';
-        delete g.demandBasis;
+        ['demandBasis','seaMode','boundarySeaCost'].forEach(function(key){delete g[key]});
         return g
       }
       function normalizeProduct(raw,index){
@@ -397,7 +396,7 @@
         if(!hasNumber(source.productPoints)||n(source.productPoints)<0)p.productPoints=DEFAULT_PRODUCT_POINTS;
         if(!['auto','required','blocked'].includes(p.transportRule))p.transportRule='auto';
         if(!['carton','batch'].includes(p.packMode))p.packMode='carton';
-        ['successRate','dailySales','marginMode','manualMargin','sellingExVat','bulkPrice','otherVariable','optionValue'].forEach(function(key){delete p[key]});
+        ['successRate','dailySales','marginMode','manualMargin','sellingExVat','bulkPrice','otherVariable','optionValue','manualSeaCost'].forEach(function(key){delete p[key]});
         return p
       }
 
@@ -410,10 +409,13 @@
 
       let state={version:STATE_VERSION,globals:defaultGlobals(),products:sampleProducts()},migratedLegacy=false;
       try{
-        const currentRaw=localStorage.getItem(STORAGE_KEY),legacyRaw=currentRaw===null?localStorage.getItem(LEGACY_STORAGE_KEY):null;
+        const currentRaw=localStorage.getItem(STORAGE_KEY);
+        let legacyRaw=null;
+        if(currentRaw===null){for(let i=0;i<LEGACY_STORAGE_KEYS.length;i++){legacyRaw=localStorage.getItem(LEGACY_STORAGE_KEYS[i]);if(legacyRaw!==null)break}}
         const saved=JSON.parse((currentRaw===null?legacyRaw:currentRaw)||'null');
         if(saved&&saved.globals&&Array.isArray(saved.products)){
           migratedLegacy=currentRaw===null&&legacyRaw!==null;
+          if(migratedLegacy&&Number(saved.globals.seaUsd)===4000)saved.globals.seaUsd=8000;
           state={version:STATE_VERSION,globals:normalizeGlobals(saved.globals),products:saved.products.map(normalizeProduct)};
         }
       }catch(error){}
@@ -426,30 +428,30 @@
         const g=state.globals;
         const defaultDailyBoundary=DEFAULT_PRODUCT_POINTS*PRODUCT_POINT_ANNUAL_GP/DAYS_PER_YEAR;
         const defaultBoundary=defaultDailyBoundary*Math.max(0,n(g.defaultDays));
-        const defaultWeightBoundary=n(g.airRate)>0?defaultBoundary/n(g.airRate):null;
+        const baseWeightBoundary=n(g.airRate)>0?Math.max(0,(defaultBoundary-n(g.airFixed))/n(g.airRate)):null;
         return '<div class="setting-card"><div class="setting-title"><h3>空运参数</h3><span>按测试批计算</span></div><div class="field-grid">'+
           fieldGlobal('airRate','空运单价','元/kg',g.airRate,'number','0.01','必须使用同一费用口径')+
           fieldGlobal('divisor','抛重除数','',g.divisor,'number','1','按货代合同，可填5000/6000')+
           fieldGlobal('rounding','计费重进位','kg',g.rounding,'number','0.1','通常0.5kg或1kg')+
           fieldGlobal('airFixed','每SKU空运其他费用','元',g.airFixed,'number','0.01','只填写空运独有费用')+
         '</div></div>'+
-        '<div class="setting-card"><div class="setting-title"><h3>40HQ 海运参数</h3><span>占柜机会成本</span></div><div class="field-grid">'+
-          fieldGlobal('seaUsd','整柜费用','美元',g.seaUsd,'number','1','相同门到门口径')+
-          fieldGlobal('fx','美元汇率','元',g.fx,'number','0.01','可随结算口径调整')+
-          fieldGlobal('volumeCapacity','有效装载体积','m³',g.volumeCapacity,'number','0.1','用历史实装，不用理论76m³')+
-          fieldGlobal('weightCapacity','有效装载重量','kg',g.weightCapacity,'number','1','用历史实装限制')+
-          fieldGlobal('seaFixed','每SKU海运其他费用','元',g.seaFixed,'number','0.01','只填写海运独有费用')+
-          '<div class="field"><label>海运成本模式</label><select data-global="seaMode"><option value="max"'+sel(g.seaMode,'max')+'>体积/重量取较大</option><option value="volume"'+sel(g.seaMode,'volume')+'>按体积占柜</option><option value="weight"'+sel(g.seaMode,'weight')+'>按重量占柜</option><option value="zero"'+sel(g.seaMode,'zero')+'>柜内有空位，干线为0</option><option value="manual"'+sel(g.seaMode,'manual')+'>每个SKU手工填写</option></select><small>用于排序，不等于发票分摊</small></div>'+
+        '<div class="setting-card"><div class="setting-title"><h3>40HQ 海运分摊</h3><span>完整成本口径</span></div><div class="field-grid">'+
+          fieldGlobal('seaUsd','整柜全程费用','美元',g.seaUsd,'number','1','默认US$8,000，填写实际完整费用')+
+          fieldGlobal('fx','美元汇率','元',g.fx,'number','0.01','按公司结算口径')+
+          fieldGlobal('volumeCapacity','有效装载体积','m³',g.volumeCapacity,'number','0.1','使用历史平均实装量')+
+          fieldGlobal('weightCapacity','有效装载重量','kg',g.weightCapacity,'number','1','使用公司实际载重口径')+
+          fieldGlobal('seaFixed','每SKU海运附加费','元',g.seaFixed,'number','0.01','没有单独附加费填0')+
+          '<div class="field"><label>固定分摊方式</label><div class="input-wrap"><input type="text" value="体积/重量占比取较高" readonly></div><small>反映先装满体积或先达到载重</small></div>'+
         '</div></div>'+
         '<div class="setting-card"><div class="setting-title"><h3>决策与平衡点</h3><span>阈值可回测调整</span></div><div class="field-grid">'+
           fieldGlobal('defaultDays','默认有效提前天数','天',g.defaultDays,'number','1','产品可单独覆盖')+
           fieldGlobal('strongThreshold','高优先内部线','AAI',g.strongThreshold,'number','0.1','示例值2.0，正式值需回测')+
           fieldGlobal('candidateThreshold','中优先内部线','AAI',g.candidateThreshold,'number','0.1','1.0为成功情景经济边界')+
           '<div class="field"><label>产品点定义</label><div class="input-wrap"><input type="text" value="1点 = ¥120,000/年" readonly></div><small>固定为产品成功后的年毛利潜力</small></div>'+
-          '<div class="field"><label>方案选择方式</label><select data-global="balanceMode"><option value="budget"'+sel(g.balanceMode,'budget')+'>按空运增量预算</option><option value="topN"'+sel(g.balanceMode,'topN')+'>按排名最多选N个</option></select></div>'+
-          (g.balanceMode==='budget'?fieldGlobal('budget','空运增量预算','元',g.budget,'number','1','留空表示不限制'):fieldGlobal('topN','最多选择N个','个',g.topN,'number','1','仅纳入达到最低AAI的产品'))+
+          '<div class="field"><label>方案选择方式</label><select data-global="balanceMode"><option value="budget"'+sel(g.balanceMode,'budget')+'>按空运新增预算</option><option value="topN"'+sel(g.balanceMode,'topN')+'>按排名最多选N个</option></select></div>'+ 
+          (g.balanceMode==='budget'?fieldGlobal('budget','空运新增预算','元',g.budget,'number','1','留空表示不限制'):fieldGlobal('topN','最多选择N个','个',g.topN,'number','1','仅纳入达到最低AAI的产品'))+
           fieldGlobal('selectionThreshold','当前最低入选线','AAI',g.selectionThreshold,'number','0.1','默认1.0；达到才自动入选')+
-        '</div><div class="computed"><b>默认空海运边界：</b>0.10点每提前1天对应 '+money(defaultDailyBoundary)+'；按默认 '+fmt(Math.max(0,n(g.defaultDays)),1)+' 天计算，空运增量成本边界为 <b>'+money(defaultBoundary)+'</b>（AAI=1）。最低入选线保持1.0且预算足够时，不超过该金额选空运，超过选海运。<br>按当前空运单价，若暂不计海运机会成本和空运固定费，对应整批空运计费重约 <b>'+fmt(defaultWeightBoundary,2)+'kg</b>。实际边界还会随产品的海运占柜成本变化。<br>这是成功情景边界；严格期望值边界 = 上述金额 × 公司统一测款成功率。</div></div>'
+        '</div><div class="computed"><b>基础边界（未计具体SKU海运分摊）：</b>0.10点每提前1天对应 '+money(defaultDailyBoundary)+'；按默认 '+fmt(Math.max(0,n(g.defaultDays)),1)+' 天计算，可承受空运新增成本为 <b>'+money(defaultBoundary)+'</b>（AAI=1），对应空运计费重约 <b>'+fmt(baseWeightBoundary,2)+'kg</b>。<br><b>这不是统一重量分界。</b>每个SKU还要加回其海运分摊成本，因此准确边界会随体积和实重变化；请使用下方“边界计费重快速计算”。这是成功情景边界；严格期望值成本边界 = 上述提前毛利潜力 × 公司统一测款成功率。</div></div>'
       }
 
       function fieldGlobal(key,label,unit,value,type,step,help){
@@ -462,16 +464,20 @@
 
       function boundaryValues(){
         const g=state.globals;
-        const valid=hasNumber(g.boundaryPoints)&&n(g.boundaryPoints)>=0&&hasNumber(g.boundaryDays)&&n(g.boundaryDays)>=0&&hasNumber(g.boundarySeaCost)&&n(g.boundarySeaCost)>=0&&hasNumber(g.airRate)&&n(g.airRate)>0&&hasNumber(g.airFixed)&&n(g.airFixed)>=0;
+        const valid=hasNumber(g.boundaryPoints)&&n(g.boundaryPoints)>=0&&hasNumber(g.boundaryDays)&&n(g.boundaryDays)>=0&&hasNumber(g.boundaryVolume)&&n(g.boundaryVolume)>=0&&hasNumber(g.boundaryGross)&&n(g.boundaryGross)>=0&&hasNumber(g.airRate)&&n(g.airRate)>0&&hasNumber(g.airFixed)&&n(g.airFixed)>=0&&hasNumber(g.seaUsd)&&n(g.seaUsd)>=0&&hasNumber(g.fx)&&n(g.fx)>0&&hasNumber(g.volumeCapacity)&&n(g.volumeCapacity)>0&&hasNumber(g.weightCapacity)&&n(g.weightCapacity)>0&&hasNumber(g.seaFixed)&&n(g.seaFixed)>=0;
         const actualBlank=g.boundaryActualWeight===''||g.boundaryActualWeight===null||g.boundaryActualWeight===undefined;
         const actualValid=actualBlank||(hasNumber(g.boundaryActualWeight)&&n(g.boundaryActualWeight)>=0);
         if(!valid||!actualValid)return {valid:false};
-        const points=n(g.boundaryPoints),days=n(g.boundaryDays),seaCost=n(g.boundarySeaCost),actual=actualBlank?null:n(g.boundaryActualWeight);
+        const points=n(g.boundaryPoints),days=n(g.boundaryDays),volume=n(g.boundaryVolume),gross=n(g.boundaryGross),actual=actualBlank?null:n(g.boundaryActualWeight);
         const annualGrossProfit=points*PRODUCT_POINT_ANNUAL_GP;
         const acceleratedValue=annualGrossProfit*days/DAYS_PER_YEAR;
-        const maxAirCost=acceleratedValue+seaCost;
+        const containerCost=n(g.seaUsd)*n(g.fx);
+        const volumeShare=volume/n(g.volumeCapacity),weightShare=gross/n(g.weightCapacity);
+        const seaAllocation=containerCost*Math.max(volumeShare,weightShare)+n(g.seaFixed);
+        const allocationBasis=volumeShare>=weightShare?'体积占比':'重量占比';
+        const maxAirCost=acceleratedValue+seaAllocation;
         const rawBoundary=(maxAirCost-n(g.airFixed))/n(g.airRate);
-        return {valid:true,points:points,days:days,seaCost:seaCost,actual:actual,annualGrossProfit:annualGrossProfit,acceleratedValue:acceleratedValue,maxAirCost:maxAirCost,rawBoundary:rawBoundary,boundaryWeight:Math.max(0,rawBoundary)}
+        return {valid:true,points:points,days:days,volume:volume,gross:gross,actual:actual,annualGrossProfit:annualGrossProfit,acceleratedValue:acceleratedValue,seaAllocation:seaAllocation,allocationBasis:allocationBasis,maxAirCost:maxAirCost,rawBoundary:rawBoundary,boundaryWeight:Math.max(0,rawBoundary)}
       }
 
       function boundaryField(key,label,unit,value,step,help){
@@ -480,21 +486,22 @@
 
       function boundaryOutputHtml(){
         const g=state.globals,b=boundaryValues();
-        if(!b.valid)return '<div class="boundary-error">请填写非负的产品点、提前天数和海运机会成本；实际计费重可以留空。空运单价必须大于0。</div>';
+        if(!b.valid)return '<div class="boundary-error">请填写非负的产品点、提前天数、整批体积和整批实重；实际计费重可以留空。空运单价、汇率及有效装载容量必须大于0。</div>';
         let decision='<div class="boundary-decision">填写“实际计费重”后，这里会直接显示空运或海运。</div>';
         if(b.actual!==null){
           const air=b.rawBoundary>=0&&b.actual<=b.rawBoundary+1e-9;
           decision='<div class="boundary-decision '+(air?'air':'sea')+'">'+(air?'达到AAI=1经济线：建议空运':'超过AAI=1经济线：建议海运')+'<br>实际 '+fmt(b.actual,2)+'kg '+(air?'≤':'＞')+' 边界 '+fmt(b.boundaryWeight,2)+'kg</div>'
         }else if(b.rawBoundary<0){decision='<div class="boundary-decision sea">空运固定费已经超过可承受金额：经济线上应走海运</div>'}
-        return '<div class="boundary-kicker">成功情景 · AAI=1</div><div class="boundary-weight">'+fmt(b.boundaryWeight,2)+'kg</div><div class="boundary-metrics"><div>产品年毛利潜力<b>'+money(b.annualGrossProfit)+'</b></div><div>提前毛利潜力<b>'+money(b.acceleratedValue)+'</b></div><div>可承受空运总成本<b>'+money(b.maxAirCost)+'</b></div><div>当前空运单价 / 固定费<b>'+money(n(g.airRate))+'/kg · '+money(n(g.airFixed))+'</b></div></div>'+decision+'<div class="boundary-formula">边界计费重 =（提前毛利潜力 + 海运机会成本 − 空运固定费）÷ 空运单价。该模块计算的是成功情景经济线；最终组合仍受预算、强制规则和最低入选线影响。</div>'
+        return '<div class="boundary-kicker">成功情景 · AAI=1</div><div class="boundary-weight">'+fmt(b.boundaryWeight,2)+'kg</div><div class="boundary-metrics"><div>产品年毛利潜力<b>'+money(b.annualGrossProfit)+'</b></div><div>提前毛利潜力<b>'+money(b.acceleratedValue)+'</b></div><div>海运分摊成本<b>'+money(b.seaAllocation)+'</b></div><div>本次分摊依据<b>'+esc(b.allocationBasis)+'</b></div><div>边界空运总成本<b>'+money(b.maxAirCost)+'</b></div><div>空运单价 / 固定费<b>'+money(n(g.airRate))+'/kg · '+money(n(g.airFixed))+'</b></div></div>'+decision+'<div class="boundary-formula">边界计费重 =（提前毛利潜力 + 海运分摊成本 − 空运固定费）÷ 空运单价；海运分摊成本按整批体积占比和重量占比中的较高者计算。</div>'
       }
 
       function renderBoundaryCalculator(){
         const g=state.globals;
-        $('#boundaryCalculator').innerHTML='<div class="boundary-inputs"><h3>输入快速判断参数</h3><p class="boundary-intro">海运机会成本可直接使用某个SKU产品卡中显示的海运成本；柜内有确定空位时可填0。空运单价和固定费继承上方全局参数。</p><div class="field-grid">'+
+        $('#boundaryCalculator').innerHTML='<div class="boundary-inputs"><h3>输入快速判断参数</h3><p class="boundary-intro">填写测款整批货物的海运体积和实重，系统会按上方整柜全程费用（当前US$'+fmt(n(g.seaUsd),0)+'）自动分摊海运费，再计算空运边界计费重。</p><div class="field-grid">'+
           boundaryField('boundaryPoints','产品点','点',g.boundaryPoints,'0.01','默认0.1点 = 年毛利潜力¥12,000')+
           boundaryField('boundaryDays','有效提前天数','天',g.boundaryDays,'1','填写真正影响补货或销售窗口的天数')+
-          boundaryField('boundarySeaCost','海运机会成本','元',g.boundarySeaCost,'0.01','柜内有空位可填0；满柜按占柜比例')+
+          boundaryField('boundaryVolume','整批海运体积','m³',g.boundaryVolume,'0.001','该批测试货实际占用体积')+
+          boundaryField('boundaryGross','整批海运实重','kg',g.boundaryGross,'0.01','该批测试货实际总毛重')+
           boundaryField('boundaryActualWeight','实际空运计费重','kg',g.boundaryActualWeight,'0.01','可留空；取实重和体积重较高者')+
         '</div></div><div class="boundary-output" id="boundaryOutput">'+boundaryOutputHtml()+'</div>'
       }
@@ -514,7 +521,7 @@
           '<div class="product-group"><h4>基本与测试采购</h4><div class="mini-grid">'+
             '<div class="field"><label>SKU编号</label><input data-field="sku" type="text" value="'+valueAttr(p.sku)+'"></div><div class="field"><label>产品名称</label><input data-field="name" type="text" value="'+valueAttr(p.name)+'" placeholder="必填"></div><div class="field"><label>类目</label><input data-field="category" type="text" value="'+valueAttr(p.category)+'" placeholder="可选"></div><div class="field"><label>运输规则</label><select data-field="transportRule"><option value="auto"'+sel(p.transportRule,'auto')+'>自动判断</option><option value="required"'+sel(p.transportRule,'required')+'>必须空运</option><option value="blocked"'+sel(p.transportRule,'blocked')+'>禁止空运</option></select></div>'+field('qty','测试数量','件',p.qty,'1')+field('testUnitPrice','测试采购单价','元/件',p.testUnitPrice)+
           '</div><div class="computed" id="test-'+p.id+'">测试采购总额：<b>'+money(c.testPurchase)+'</b><br>该金额仅用于首批预算，不参与AAI排序。</div></div>'+
-          '<div class="product-group"><h4>最终外箱与运输</h4><div class="mini-grid"><div class="field full"><label>包装录入模式</label><select data-field="packMode"><option value="carton"'+sel(p.packMode,'carton')+'>按相同规格外箱</option><option value="batch"'+sel(p.packMode,'batch')+'>按整批总体积/实重</option></select></div>'+(p.packMode==='carton'?cartonFields:batchFields)+field('confirmedChargeable','货代确认计费重','kg（可空）',p.confirmedChargeable)+field('manualSeaCost','手工海运成本','元（按需）',p.manualSeaCost)+'</div><div class="computed" id="shipping-'+p.id+'">总体积 <b>'+fmt(c.volume,4)+'m³</b> · 总实重 <b>'+fmt(c.gross,2)+'kg</b><br>体积重 <b>'+fmt(c.volumeWeight,2)+'kg</b> · 计费重 <b>'+fmt(c.chargeable,2)+'kg</b> · '+esc(c.weightBasis)+'<br>空运 <b>'+money(c.air)+'</b> · 海运 <b>'+money(c.sea)+'</b> · 海运口径：'+esc(c.seaBasis)+'</div></div>'+
+          '<div class="product-group"><h4>最终外箱与运输</h4><div class="mini-grid"><div class="field full"><label>包装录入模式</label><select data-field="packMode"><option value="carton"'+sel(p.packMode,'carton')+'>按相同规格外箱</option><option value="batch"'+sel(p.packMode,'batch')+'>按整批总体积/实重</option></select></div>'+(p.packMode==='carton'?cartonFields:batchFields)+field('confirmedChargeable','货代确认计费重','kg（可空）',p.confirmedChargeable)+'</div><div class="computed" id="shipping-'+p.id+'">总体积 <b>'+fmt(c.volume,4)+'m³</b> · 总实重 <b>'+fmt(c.gross,2)+'kg</b><br>体积重 <b>'+fmt(c.volumeWeight,2)+'kg</b> · 计费重 <b>'+fmt(c.chargeable,2)+'kg</b> · '+esc(c.weightBasis)+'<br>空运成本 <b>'+money(c.air)+'</b> · 海运分摊成本 <b>'+money(c.sea)+'</b> · 分摊依据：'+esc(c.seaBasis)+'</div></div>'+ 
           '<div class="product-group"><h4>产品点与时间价值</h4><div class="mini-grid">'+
             field('productPoints','产品点（新增默认0.1；1点=年毛利12万元）','点',p.productPoints,'0.01')+
             field('days','有效提前天数','天；空则继承'+state.globals.defaultDays,p.days)+
@@ -523,7 +530,7 @@
       }
 
       function field(key,label,unit,value,step){
-        const limits={qty:' min="1"',testUnitPrice:' min="0"',cartons:' min="1"',length:' min="0"',width:' min="0"',height:' min="0"',grossPerCarton:' min="0"',batchVolume:' min="0"',batchGross:' min="0"',confirmedChargeable:' min="0"',manualSeaCost:' min="0"',productPoints:' min="0"',days:' min="0"'};
+        const limits={qty:' min="1"',testUnitPrice:' min="0"',cartons:' min="1"',length:' min="0"',width:' min="0"',height:' min="0"',grossPerCarton:' min="0"',batchVolume:' min="0"',batchGross:' min="0"',confirmedChargeable:' min="0"',productPoints:' min="0"',days:' min="0"'};
         return '<div class="field"><label>'+esc(label)+'</label><div class="input-wrap"><input data-field="'+key+'" type="number" step="'+(step||'any')+'"'+(limits[key]||'')+' inputmode="decimal" value="'+valueAttr(value)+'">'+(unit?'<span class="unit">'+esc(unit)+'</span>':'')+'</div></div>'
       }
 
@@ -540,18 +547,16 @@
         if(!hasNumber(g.divisor)||n(g.divisor)<=0)errors.push('抛重除数必须大于0');
         if(!hasNumber(g.rounding)||n(g.rounding)<=0)errors.push('计费重进位必须大于0');
         if(!hasNumber(g.airFixed)||n(g.airFixed)<0)errors.push('空运其他费用不得为负数');
-        if(!hasNumber(g.seaFixed)||n(g.seaFixed)<0)errors.push('海运其他费用不得为负数');
-        if(['max','volume','weight'].includes(g.seaMode)){
-          if(!hasNumber(g.seaUsd)||n(g.seaUsd)<0)errors.push('整柜费用必须填写且不得为负数');
-          if(!hasNumber(g.fx)||n(g.fx)<=0)errors.push('美元汇率必须大于0');
-        }
-        if(['max','volume'].includes(g.seaMode)&&(!hasNumber(g.volumeCapacity)||n(g.volumeCapacity)<=0))errors.push('有效装载体积必须大于0');
-        if(['max','weight'].includes(g.seaMode)&&(!hasNumber(g.weightCapacity)||n(g.weightCapacity)<=0))errors.push('有效装载重量必须大于0');
+        if(!hasNumber(g.seaUsd)||n(g.seaUsd)<0)errors.push('整柜全程费用必须填写且不得为负数');
+        if(!hasNumber(g.fx)||n(g.fx)<=0)errors.push('美元汇率必须大于0');
+        if(!hasNumber(g.volumeCapacity)||n(g.volumeCapacity)<=0)errors.push('有效装载体积必须大于0');
+        if(!hasNumber(g.weightCapacity)||n(g.weightCapacity)<=0)errors.push('有效装载重量必须大于0');
+        if(!hasNumber(g.seaFixed)||n(g.seaFixed)<0)errors.push('海运附加费不得为负数');
         if(!hasNumber(g.defaultDays)||n(g.defaultDays)<0)errors.push('默认有效提前天数不得为空或为负数');
         if(!hasNumber(g.strongThreshold)||n(g.strongThreshold)<0||!hasNumber(g.candidateThreshold)||n(g.candidateThreshold)<0)errors.push('AAI阈值必须填写且不得为负数');
         else if(n(g.strongThreshold)<n(g.candidateThreshold))errors.push('高优先内部线不能低于中优先内部线');
         if(!hasNumber(g.selectionThreshold)||n(g.selectionThreshold)<0)errors.push('当前最低入选线必须填写且不得为负数');
-        if(g.balanceMode==='budget'&&g.budget!==''&&(!hasNumber(g.budget)||n(g.budget)<0))errors.push('空运增量预算不得为负数');
+        if(g.balanceMode==='budget'&&g.budget!==''&&(!hasNumber(g.budget)||n(g.budget)<0))errors.push('空运新增预算不得为负数');
         if(g.balanceMode==='topN'&&(!hasNumber(g.topN)||!Number.isInteger(n(g.topN))||n(g.topN)<1))errors.push('最多选择数量必须为正整数');
         return errors
       }
@@ -573,12 +578,8 @@
         const container=n(g.seaUsd)*n(g.fx);
         const volumeShare=n(g.volumeCapacity)>0?volume/n(g.volumeCapacity):0;
         const weightShare=n(g.weightCapacity)>0?gross/n(g.weightCapacity):0;
-        let seaLine=0,seaBasis='柜内空位';
-        if(g.seaMode==='manual'){seaLine=Math.max(0,n(p.manualSeaCost));seaBasis='手工海运成本'}
-        else if(g.seaMode==='volume'){seaLine=container*volumeShare;seaBasis='体积占柜'}
-        else if(g.seaMode==='weight'){seaLine=container*weightShare;seaBasis='重量占柜'}
-        else if(g.seaMode==='zero'){seaLine=0;seaBasis='柜内空位'}
-        else{seaLine=container*Math.max(volumeShare,weightShare);seaBasis=volumeShare>=weightShare?'体积限制':'重量限制'}
+        const seaLine=container*Math.max(volumeShare,weightShare);
+        const seaBasis=volumeShare>=weightShare?'体积分摊':'重量分摊';
         const sea=seaLine+n(g.seaFixed);
         const delta=air-sea;
         const days=p.days===''?n(g.defaultDays):n(p.days);
@@ -588,11 +589,10 @@
         let aai=0;if(delta<=0&&acceleratedValue>0)aai=Infinity;else if(delta>0)aai=acceleratedValue/delta;
         const net=acceleratedValue-delta;
         const packCountValid=p.packMode!=='carton'||(hasNumber(p.cartons)&&Number.isInteger(n(p.cartons))&&n(p.cartons)>0);
-        const manualSeaValid=g.seaMode!=='manual'||hasNumber(p.manualSeaCost)&&n(p.manualSeaCost)>=0;
         const confirmedChargeableValid=p.confirmedChargeable===''||(hasNumber(p.confirmedChargeable)&&n(p.confirmedChargeable)>0);
         const daysValid=p.days===''||hasNumber(p.days);
         const logisticsFinite=[volume,gross,volumeWeight,chargeable,air,sea,delta].every(Number.isFinite);
-        const valid=validateGlobals()&&String(p.name||'').trim()!==''&&hasNumber(p.qty)&&Number.isInteger(n(p.qty))&&n(p.qty)>0&&hasNumber(p.testUnitPrice)&&n(p.testUnitPrice)>=0&&packCountValid&&logisticsFinite&&volume>0&&gross>0&&chargeable>0&&confirmedChargeableValid&&hasNumber(p.productPoints)&&n(p.productPoints)>=0&&Number.isFinite(annualGrossProfit)&&Number.isFinite(acceleratedValue)&&manualSeaValid&&daysValid&&days>=0;
+        const valid=validateGlobals()&&String(p.name||'').trim()!==''&&hasNumber(p.qty)&&Number.isInteger(n(p.qty))&&n(p.qty)>0&&hasNumber(p.testUnitPrice)&&n(p.testUnitPrice)>=0&&packCountValid&&logisticsFinite&&volume>0&&gross>0&&chargeable>0&&confirmedChargeableValid&&hasNumber(p.productPoints)&&n(p.productPoints)>=0&&Number.isFinite(annualGrossProfit)&&Number.isFinite(acceleratedValue)&&daysValid&&days>=0;
         let recommendation='数据不完整',statusClass='review';
         if(p.transportRule==='blocked'){recommendation='禁止空运';statusClass='blocked'}
         else if(!valid){recommendation='数据不完整';statusClass='review'}
@@ -637,16 +637,16 @@
         const all=state.products.map(calculate),plan=buildPlan(all),sorted=plan.sorted,chosen=sorted.filter(function(c){return plan.selected.has(c.p.id)});
         const totalTest=all.reduce(function(s,c){return s+c.testPurchase},0),totalDelta=chosen.reduce(function(s,c){return s+Math.max(0,c.delta)},0),totalValue=chosen.reduce(function(s,c){return s+c.acceleratedValue},0),totalNet=chosen.reduce(function(s,c){return s+c.net},0),strong=all.filter(function(c){return c.valid&&c.aai>=n(state.globals.strongThreshold)&&c.p.transportRule!=='blocked'}).length;
         $('#mobilePlan').textContent=chosen.length+' 个空运 · '+money(totalDelta);
-        const summaries='<div class="summary-cards">'+summaryCard('有效SKU',sorted.length+'个')+summaryCard('高优先产品',strong+'个')+summaryCard('当前选择空运',chosen.length+'个',true)+summaryCard('空运增量成本',money(totalDelta))+summaryCard('提前毛利潜力',money(totalValue))+summaryCard('成功情景净值',money(totalNet),true)+summaryCard('测试采购预算',money(totalTest))+summaryCard('最后入选AAI',chosen.length?aaiText(chosen[chosen.length-1].aai):'—')+'</div>';
+        const summaries='<div class="summary-cards">'+summaryCard('有效SKU',sorted.length+'个')+summaryCard('高优先产品',strong+'个')+summaryCard('当前选择空运',chosen.length+'个',true)+summaryCard('空运新增成本',money(totalDelta))+summaryCard('提前毛利潜力',money(totalValue))+summaryCard('成功情景净值',money(totalNet),true)+summaryCard('测试采购预算',money(totalTest))+summaryCard('最后入选AAI',chosen.length?aaiText(chosen[chosen.length-1].aai):'—')+'</div>';
         if(!state.products.length){$('#results').innerHTML=summaries+'<div class="empty"><b>等待产品数据</b>添加产品后会自动生成排名。</div>';return}
         let budgetStatus='不限制';
         if(state.globals.balanceMode==='budget'&&state.globals.budget!==''){
           const remaining=roundMoney(n(state.globals.budget)-totalDelta);
           budgetStatus=remaining>=0?money(remaining)+' 剩余':money(Math.abs(remaining))+' 超支（必须空运项）';
         }
-        const balance='<div class="balance-panel"><div class="balance-controls"><h3>平衡点控制</h3><p>“必须空运”和“禁止空运”优先于自动方案。预算模式按AAI从高到低检查，放不下的产品会跳过并继续检查后续较低成本项；这是快速近似组合。</p><div class="field-grid"><div class="field"><label>选择方式</label><select data-result-global="balanceMode"><option value="budget"'+sel(state.globals.balanceMode,'budget')+'>按增量预算</option><option value="topN"'+sel(state.globals.balanceMode,'topN')+'>最多选择N个</option></select></div>'+(state.globals.balanceMode==='budget'?fieldResult('budget','空运增量预算','元',state.globals.budget,'留空不限制'):fieldResult('topN','最多选择N个','个',state.globals.topN,'仅选达到当前入选线的产品'))+fieldResult('selectionThreshold','当前最低入选线','AAI',state.globals.selectionThreshold,'公司内部政策阈值')+'</div><div class="balance-output"><div>当前增量成本<b>'+money(totalDelta)+'</b></div><div>成功情景净值<b>'+money(totalNet)+'</b></div><div>入选产品<b>'+chosen.length+' / '+sorted.length+'</b></div><div>预算状态<b>'+esc(budgetStatus)+'</b></div></div></div><div class="chart-card"><h3>AAI 优先级分布</h3><p>条形越长，代表每1元空运增量成本对应的成功情景提前毛利潜力越高。</p>'+chart(sorted)+'</div></div>';
+        const balance='<div class="balance-panel"><div class="balance-controls"><h3>平衡点控制</h3><p>“必须空运”和“禁止空运”优先于自动方案。预算模式按AAI从高到低检查，放不下的产品会跳过并继续检查后续较低成本项；这是快速近似组合。</p><div class="field-grid"><div class="field"><label>选择方式</label><select data-result-global="balanceMode"><option value="budget"'+sel(state.globals.balanceMode,'budget')+'>按空运新增预算</option><option value="topN"'+sel(state.globals.balanceMode,'topN')+'>最多选择N个</option></select></div>'+(state.globals.balanceMode==='budget'?fieldResult('budget','空运新增预算','元',state.globals.budget,'留空不限制'):fieldResult('topN','最多选择N个','个',state.globals.topN,'仅选达到当前入选线的产品'))+fieldResult('selectionThreshold','当前最低入选线','AAI',state.globals.selectionThreshold,'公司内部政策阈值')+'</div><div class="balance-output"><div>当前空运新增成本<b>'+money(totalDelta)+'</b></div><div>成功情景净值<b>'+money(totalNet)+'</b></div><div>入选产品<b>'+chosen.length+' / '+sorted.length+'</b></div><div>预算状态<b>'+esc(budgetStatus)+'</b></div></div></div><div class="chart-card"><h3>AAI 优先级分布</h3><p>条形越长，代表空运相对海运分摊每多花1元，对应的成功情景提前毛利潜力越高。</p>'+chart(sorted)+'</div></div>';
         const tableRows=sorted.map(function(c,i){return resultRow(c,i,plan.selected.has(c.p.id))}).join('');
-        const table='<div class="results-table-wrap"><table><thead><tr><th>排名</th><th>产品</th><th>产品点</th><th>AAI</th><th>优先级分档</th><th>当前方案</th><th>提前毛利潜力</th><th>空运成本</th><th>海运成本</th><th>增量成本</th><th>成功情景净值</th><th>实际计费重</th><th>边界计费重</th><th>抛重</th></tr></thead><tbody>'+tableRows+'</tbody></table></div>';
+        const table='<div class="results-table-wrap"><table><thead><tr><th>排名</th><th>产品</th><th>产品点</th><th>AAI</th><th>优先级分档</th><th>当前方案</th><th>提前毛利潜力</th><th>空运成本</th><th>海运分摊成本</th><th>空运新增成本</th><th>成功情景净值</th><th>实际计费重</th><th>边界计费重</th><th>抛重</th></tr></thead><tbody>'+tableRows+'</tbody></table></div>';
         const mobile='<div class="mobile-results">'+sorted.map(function(c,i){return mobileResult(c,i,plan.selected.has(c.p.id))}).join('')+'</div>';
         $('#results').innerHTML=summaries+balance+table+mobile;
         updateProductSummaries(sorted)
@@ -661,8 +661,8 @@
       }
       function resultRow(c,index,selected){return '<tr class="'+(selected?'selected':'')+'"><td>'+(index+1)+'</td><td class="name-cell"><b>'+esc(c.p.name)+'</b><span>'+esc(c.p.sku)+' · '+esc(c.p.category||'未分类')+'</span></td><td>'+fmt(c.points,2)+'</td><td class="aai">'+aaiText(c.aai)+'</td><td><span class="status '+c.statusClass+'">'+esc(c.recommendation)+'</span></td><td class="'+(selected?'plan-air':'plan-sea')+'">'+(selected?'空运':'海运')+'</td><td>'+money(c.acceleratedValue)+'</td><td>'+money(c.air)+'</td><td>'+money(c.sea)+'</td><td>'+money(c.delta)+'</td><td>'+money(c.net)+'</td><td>'+fmt(c.chargeable,2)+'kg</td><td>'+fmt(c.breakEvenChargeable,2)+'kg</td><td>'+fmt(c.throwRatio,2)+'×</td></tr>'}
       function mobileResult(c,index,selected){
-        const explanation=fmt(c.points,2)+'产品点对应年毛利潜力 '+money(c.annualGrossProfit)+'；'+fmt(c.days,1)+'天的提前毛利潜力为 '+money(c.acceleratedValue)+'。实际计费重 '+fmt(c.chargeable,2)+'kg，成功情景边界计费重 '+fmt(c.breakEvenChargeable,2)+'kg。空运比海运'+(c.delta>=0?'多 '+money(c.delta):'少 '+money(Math.abs(c.delta)))+'，因此 AAI 为 '+aaiText(c.aai)+'。成功情景盈亏平衡点数 '+(c.breakEvenPoints===null?'—':fmt(c.breakEvenPoints,3)+'点')+'，盈亏平衡提前天数 '+(c.breakEvenDays===null?'—':fmt(c.breakEvenDays,1)+'天')+'。';
-        return '<div class="mobile-result"><div class="mobile-result-head"><div><h4>'+(index+1)+'. '+esc(c.p.name)+'</h4><div class="sku">'+esc(c.p.sku)+' · 当前方案：'+(selected?'空运':'海运')+'</div></div><span class="status '+c.statusClass+'">'+esc(c.recommendation)+'</span></div><div class="mobile-result-grid"><div>产品点 / AAI<b>'+fmt(c.points,2)+' / '+aaiText(c.aai)+'</b></div><div>成功情景净值<b>'+money(c.net)+'</b></div><div>计费重 / 边界<b>'+fmt(c.chargeable,2)+' / '+fmt(c.breakEvenChargeable,2)+'kg</b></div><div>增量成本<b>'+money(c.delta)+'</b></div></div><div class="explanation">'+esc(explanation)+'</div></div>'
+        const explanation=fmt(c.points,2)+'产品点对应年毛利潜力 '+money(c.annualGrossProfit)+'；'+fmt(c.days,1)+'天的提前毛利潜力为 '+money(c.acceleratedValue)+'。实际计费重 '+fmt(c.chargeable,2)+'kg，成功情景边界计费重 '+fmt(c.breakEvenChargeable,2)+'kg。空运相对海运分摊'+(c.delta>=0?'多花 '+money(c.delta):'少花 '+money(Math.abs(c.delta)))+'，因此 AAI 为 '+aaiText(c.aai)+'。成功情景盈亏平衡点数 '+(c.breakEvenPoints===null?'—':fmt(c.breakEvenPoints,3)+'点')+'，盈亏平衡提前天数 '+(c.breakEvenDays===null?'—':fmt(c.breakEvenDays,1)+'天')+'。';
+        return '<div class="mobile-result"><div class="mobile-result-head"><div><h4>'+(index+1)+'. '+esc(c.p.name)+'</h4><div class="sku">'+esc(c.p.sku)+' · 当前方案：'+(selected?'空运':'海运')+'</div></div><span class="status '+c.statusClass+'">'+esc(c.recommendation)+'</span></div><div class="mobile-result-grid"><div>产品点 / AAI<b>'+fmt(c.points,2)+' / '+aaiText(c.aai)+'</b></div><div>成功情景净值<b>'+money(c.net)+'</b></div><div>计费重 / 边界<b>'+fmt(c.chargeable,2)+' / '+fmt(c.breakEvenChargeable,2)+'kg</b></div><div>空运新增成本<b>'+money(c.delta)+'</b></div></div><div class="explanation">'+esc(explanation)+'</div></div>'
       }
 
       function updateProductSummaries(sorted){
@@ -675,7 +675,7 @@
           if(t)t.textContent=p.name||'未命名产品';
           if(meta)meta.textContent=(p.sku||'未填SKU')+' · 测试 '+fmt(n(p.qty),0)+' 件';
           if(test)test.innerHTML='测试采购总额：<b>'+money(c.testPurchase)+'</b><br>该金额仅用于首批预算，不参与AAI排序。';
-          if(shipping)shipping.innerHTML='总体积 <b>'+fmt(c.volume,4)+'m³</b> · 总实重 <b>'+fmt(c.gross,2)+'kg</b><br>体积重 <b>'+fmt(c.volumeWeight,2)+'kg</b> · 计费重 <b>'+fmt(c.chargeable,2)+'kg</b> · '+esc(c.weightBasis)+'<br>空运 <b>'+money(c.air)+'</b> · 海运 <b>'+money(c.sea)+'</b> · 海运口径：'+esc(c.seaBasis);
+          if(shipping)shipping.innerHTML='总体积 <b>'+fmt(c.volume,4)+'m³</b> · 总实重 <b>'+fmt(c.gross,2)+'kg</b><br>体积重 <b>'+fmt(c.volumeWeight,2)+'kg</b> · 计费重 <b>'+fmt(c.chargeable,2)+'kg</b> · '+esc(c.weightBasis)+'<br>空运成本 <b>'+money(c.air)+'</b> · 海运分摊成本 <b>'+money(c.sea)+'</b> · 分摊依据：'+esc(c.seaBasis);
           if(business){const hasPoints=hasNumber(p.productPoints)&&n(p.productPoints)>=0;business.innerHTML='产品点：<b>'+(hasPoints?fmt(c.points,2)+'点':'—')+'</b> · 年毛利潜力：<b>'+(hasPoints?money(c.annualGrossProfit):'—')+'</b><br>有效提前天数：<b>'+fmt(c.days,1)+'天</b> · 提前毛利潜力：<b>'+(hasPoints?money(c.acceleratedValue):'—')+'</b><br>实际计费重：<b>'+fmt(c.chargeable,2)+'kg</b> · 空运边界计费重：<b>'+fmt(c.breakEvenChargeable,2)+'kg</b><br>成功情景盈亏平衡点数：<b>'+(c.breakEvenPoints===null?'—':fmt(c.breakEvenPoints,3)+'点')+'</b> · 盈亏平衡提前天数：<b>'+(c.breakEvenDays===null?'—':fmt(c.breakEvenDays,1)+'天')+'</b>'}
         })
       }
@@ -711,7 +711,7 @@
       $('#importFile').addEventListener('change',function(event){const file=event.target.files&&event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(){try{const incoming=JSON.parse(reader.result);if(!incoming||!incoming.globals||!Array.isArray(incoming.products))throw new Error('格式错误');if(state.products.length&&!confirm('导入将替换当前 '+state.products.length+' 个产品，是否继续？'))return;const legacy=incoming.version!==STATE_VERSION;state={version:STATE_VERSION,globals:normalizeGlobals(incoming.globals),products:incoming.products.map(normalizeProduct)};renderAll();save();toast(legacy?'旧版数据已导入，缺失产品点已按0.1补入':'数据导入成功')}catch(error){alert('无法导入：文件格式不正确。')}};reader.readAsText(file);event.target.value=''});
       $('#exportCsvBtn').addEventListener('click',function(){
         const all=state.products.map(calculate),plan=buildPlan(all),rank={};plan.sorted.forEach(function(c,i){rank[c.p.id]=i+1});
-        const headers=['排名','SKU','产品名称','类目','当前方案','优先级分档','AAI','产品点数','每点年毛利','年毛利潜力','有效提前天数','提前毛利潜力','空运成本','海运成本','空海运增量成本','成功情景净值','成功情景盈亏平衡点数','盈亏平衡提前天数','总体积m3','总实重kg','体积重kg','计费重kg','空运边界计费重kg','抛重倍数','测试数量','测试采购单价','测试采购总额'];
+        const headers=['排名','SKU','产品名称','类目','当前方案','优先级分档','AAI','产品点数','每点年毛利','年毛利潜力','有效提前天数','提前毛利潜力','空运成本','海运分摊成本','空运新增成本','成功情景净值','成功情景盈亏平衡点数','盈亏平衡提前天数','总体积m3','总实重kg','体积重kg','计费重kg','空运边界计费重kg','抛重倍数','测试数量','测试采购单价','测试采购总额'];
         const rows=all.filter(function(c){return c.valid}).sort(compareCalc).map(function(c){return [rank[c.p.id],c.p.sku,c.p.name,c.p.category,plan.selected.has(c.p.id)?'空运':'海运',c.recommendation,c.aai===Infinity?'INF':c.aai,c.points,PRODUCT_POINT_ANNUAL_GP,c.annualGrossProfit,c.days,c.acceleratedValue,c.air,c.sea,c.delta,c.net,c.breakEvenPoints===null?'':c.breakEvenPoints,c.breakEvenDays===null?'':c.breakEvenDays,c.volume,c.gross,c.volumeWeight,c.chargeable,c.breakEvenChargeable,c.throwRatio,c.p.qty,c.p.testUnitPrice,c.testPurchase]});
         const csv='\ufeff'+[headers].concat(rows).map(function(row){return row.map(function(v){let cell=String(v===undefined||v===null?'':v);if(typeof v==='string'&&/^[=+\-@\t\r]/.test(cell))cell="'"+cell;return '"'+cell.replace(/"/g,'""')+'"'}).join(',')}).join('\n');download('新品空运优先级-结果-'+dateStamp()+'.csv',csv,'text/csv;charset=utf-8');toast('结果CSV已导出')
       });
@@ -719,7 +719,7 @@
       function dateStamp(){const d=new Date();return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')}
 
       renderAll();
-      if(migratedLegacy){save();toast('旧版数据已保留，缺失产品点已按0.1补入')}
+      if(migratedLegacy){save();toast('旧版数据已保留，并升级为完整海运分摊口径')}
     })();
   </script>
 </body>
