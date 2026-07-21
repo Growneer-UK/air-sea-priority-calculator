@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0d3b36">
-  <meta name="description" content="新品测试空运与海运优先级计算器：计算计费重、空海运增量成本、预期提前价值和空运加速指数 AAI。">
+  <meta name="description" content="新品测试空运与海运优先级计算器：按产品点、有效提前天数和空海运增量成本排列空运优先级。">
   <title>新品空运优先级计算器｜AAI</title>
   <style>
     :root{
@@ -240,14 +240,14 @@
       <div>
         <div class="eyebrow">新品首批测款 · 空运 / 海运决策</div>
         <h1>把空运费花在最值得提前验证的产品上</h1>
-        <p class="hero-copy">本工具衡量的不是首批测试能否回本，而是：<strong>每多花 1 元空运增量成本，预计能换回多少元提前验证价值</strong>。测试采购价只用于测款预算，不进入空运优先级。</p>
+        <p class="hero-copy">本工具衡量的不是首批测试能否回本，而是：<strong>每多花 1 元空运增量成本，在产品成功情景下能提前释放多少毛利潜力</strong>。测试采购价只用于测款预算，不进入空运优先级。</p>
       </div>
       <div class="formula-card">
         <div class="label">核心指标 · 空运加速指数</div>
-        <div class="formula-main">AAI = 预期提前价值 ÷ 空海运增量成本</div>
+        <div class="formula-main">AAI = 提前毛利潜力 ÷ 空海运增量成本</div>
         <div class="formula-line"></div>
-        <p class="formula-sub">预期提前价值 = 成功概率 × 成功后日销量 × 正常大货单件贡献利润 × 有效提前天数 + 可验证的额外期权价值</p>
-        <div class="formula-badges"><span>AAI ≥ 2 · 强优先</span><span>1–2 · 候选</span><span>&lt; 1 · 海运</span></div>
+        <p class="formula-sub">年毛利潜力 = 产品点 × ¥120,000；提前毛利潜力 = 年毛利潜力 × 有效提前天数 ÷ 365</p>
+        <div class="formula-badges"><span>分数越高越优先</span><span>按预算选择截止点</span><span>分档线需用历史数据回测</span></div>
       </div>
     </div>
   </section>
@@ -256,7 +256,7 @@
     <div class="wrap">
       <div class="notice">
         <div class="notice-icon">i</div>
-        <div><b>填写原则：</b>包装必须使用最终外箱尺寸和毛重；商业测算必须使用正常大货价格。若日销量采用“全体测款平均值，失败款记为0”，请在决策参数中切换口径，系统将不再重复乘成功率。</div>
+        <div><b>填写原则：</b>包装必须使用最终外箱尺寸和毛重；每个产品填写统一口径的产品点，<b>1点代表产品成功后年毛利潜力¥120,000</b>。主排名不使用成功率，结果是成功情景下的相对优先级。</div>
       </div>
 
       <section class="section" id="settings">
@@ -265,7 +265,7 @@
       </section>
 
       <section class="section" id="productsSection">
-        <div class="section-head"><div><h2>2. 测款产品</h2><p>每个产品录入测试批包装、正常大货经济数据和有效提前天数。</p></div></div>
+        <div class="section-head"><div><h2>2. 测款产品</h2><p>每个产品录入测试批包装、产品点和有效提前天数。</p></div></div>
         <div class="panel">
           <div class="product-toolbar">
             <div class="copy">测试采购价仅用于显示首批采购预算，不参与 AAI 计算。</div>
@@ -280,7 +280,7 @@
       </section>
 
       <section class="section" id="resultsSection">
-        <div class="section-head"><div><h2>3. 排名与运输方案</h2><p>主排序按 AAI 从高到低；在预算约束下，系统给出当前建议空运组合。</p></div></div>
+        <div class="section-head"><div><h2>3. 排名与运输方案</h2><p>主排序按 AAI 从高到低；系统按照当前内部阈值和预算生成方案。</p></div></div>
         <div class="panel result-dashboard" id="results"></div>
       </section>
 
@@ -289,11 +289,11 @@
         <div class="method-grid">
           <details class="method" open>
             <summary>为什么测试采购价不进入排序？</summary>
-            <div class="method-copy">同一批测试品无论走空运还是海运，都需要支付测试采购款，因此比较运输方式时会相互抵消。测试价100元、未来大货价50元时，测试价只进入首批预算；未来贡献利润必须按50元附近的正常大货成本计算。<div class="equation">空运方案价值 − 海运方案价值<br>= 提前获得结论的价值 −（空运成本 − 海运成本）</div></div>
+            <div class="method-copy">同一批测试品无论走空运还是海运，都需要支付测试采购款，因此比较运输方式时会相互抵消。测试采购价只进入首批预算，不进入产品点或AAI。<div class="equation">成功情景毛利口径净值<br>= 提前毛利潜力 −（空运成本 − 海运成本）</div></div>
           </details>
           <details class="method" open>
             <summary>有效提前天数怎么填？</summary>
-            <div class="method-copy">不是简单的“海运天数减空运天数”，而是两种方案取得有效测款结论、并真正影响补货或销售窗口的日期差。<ul><li>若空运早到20天，但仍只能赶上同一排产节点，填写0天。</li><li>若海运会错过旺季、空运能赶上，应填写真正不可追回的利润等价天数。</li><li>现有7–14天观察期、最晚28天判断期也要放进两条时间线。</li></ul>只有在能审计时，才填写额外期权价值，例如空运结果能避免“未测先下大货”的预期损失；否则保持为0。</div>
+            <div class="method-copy">不是简单的“海运天数减空运天数”，而是两种方案取得有效测款结论、并真正影响补货或销售窗口的日期差。<ul><li>若空运早到20天，但仍只能赶上同一排产节点，填写0天。</li><li>若海运会错过旺季、空运能赶上，应填写真正能够提前实现毛利的天数。</li><li>现有7–14天观察期、最晚28天判断期也要放进两条时间线。</li></ul>强季节产品的毛利并非均匀产生，需要把旺季窗口反映在有效提前天数中。</div>
           </details>
           <details class="method">
             <summary>空运抛重如何计算？</summary>
@@ -304,12 +304,16 @@
             <div class="method-copy">40HQ是阶梯成本。默认计算用于单品排序，不等同于最终海运发票分摊。柜子长期满载时使用占柜成本；已有确定空位时可选择“柜内有空位，干线边际成本为0”；如果一组新品导致多开整柜，应在排序后做一次装柜组合校正。</div>
           </details>
           <details class="method">
-            <summary>成功率和日销量从哪里来？</summary>
-            <div class="method-copy">建议按“平台 × 类目 × 售价带 × 选品来源 × BU”的历史同类新品自动给出。成功率不要由开发人员自由填写；成功后日销量建议用成功款30/60天中位数。若使用全体测款平均日销量且失败款按0计，选择“无条件日销量”口径，避免重复乘成功率。</div>
+            <summary>产品点怎么填？</summary>
+            <div class="method-copy"><strong>1产品点 = 产品成功后年毛利潜力¥120,000</strong>，允许填写小数。例如0.5点代表年毛利¥60,000，2点代表¥240,000。所有人必须使用同一种毛利口径，并由产品负责人或财务统一确认；不能有人填销售毛利、有人填扣除广告和尾程后的贡献利润。</div>
+          </details>
+          <details class="method">
+            <summary>为什么主排名不使用成功率？</summary>
+            <div class="method-copy">本模型按公司的管理口径，主动不比较产品之间的成功率差异。只有假设所有产品使用同一个组合成功率时，这个共同乘数才不会改变排名。需要注意：这里的产品点是<strong>成功后的年毛利</strong>，所以AAI是成功情景指标，不是概率加权后的财务收益率；若不同产品成功率差异显著，当前排名也不是概率加权排名。若公司统一使用25%的组合成功率，所有AAI乘25%即可得到组合期望口径，排名不变，但最终截止线需要相应提高。</div>
           </details>
           <details class="method">
             <summary>阈值与最终选择</summary>
-            <div class="method-copy"><strong>AAI=1</strong>是数学平衡点；<strong>AAI=2</strong>相当于给预测误差留出约50%的缓冲。预算受限时按AAI排序；若限制的是SKU数量，应同时观察“预期净价值”。正式阈值最好用过去6–12个月新品回测后确定。</div>
+            <div class="method-copy">AAI阈值是公司的内部政策线，不再称为真实预期盈亏平衡线。预算受限时优先按AAI排序，再观察累计空运增量成本和成功情景净值选择截止位置。正式阈值应结合公司整体测款成功率和过去6–12个月数据回测。</div>
           </details>
         </div>
         <div class="sources">参考规则：空运体积重应按承运商合同执行，FedEx公开说明采用实重与体积重较高者；40HQ名义参数可参考承运商规格，但有效装载量应采用公司历史实装值。<a href="https://www.fedex.com/en-ca/resources-tools/dimensional-weight.html" target="_blank" rel="noopener">FedEx体积重说明</a> · <a href="https://www.maersk.com/~/media_sc9/maersk/local-information/files/africa/south-africa/important-information/container-type-and-sizes/dry-equipment-specifications-updated.pdf" target="_blank" rel="noopener">Maersk集装箱规格</a></div>
@@ -326,8 +330,11 @@
     (function(){
       'use strict';
 
-      const STORAGE_KEY='air-sea-aai-calculator-v1';
-      const STATE_VERSION=1;
+      const STORAGE_KEY='air-sea-aai-calculator-v2';
+      const LEGACY_STORAGE_KEY='air-sea-aai-calculator-v1';
+      const STATE_VERSION=2;
+      const PRODUCT_POINT_ANNUAL_GP=120000;
+      const DAYS_PER_YEAR=365;
       const $=function(sel,root){return (root||document).querySelector(sel)};
       const $$=function(sel,root){return Array.from((root||document).querySelectorAll(sel))};
 
@@ -339,7 +346,6 @@
       function esc(value){return String(value===undefined||value===null?'':value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
       function fmt(value,digits){if(!Number.isFinite(value))return '—';return new Intl.NumberFormat('zh-CN',{minimumFractionDigits:digits||0,maximumFractionDigits:digits===undefined?2:digits}).format(value)}
       function money(value){return Number.isFinite(value)?'¥'+fmt(value,2):'—'}
-      function pct(value){return Number.isFinite(value)?fmt(value*100,1)+'%':'—'}
       function aaiText(value){if(value===Infinity)return '∞';return Number.isFinite(value)?fmt(value,2):'—'}
       function valueAttr(value){return esc(value===undefined||value===null?'':value)}
       function toast(message){const el=$('#toast');el.textContent=message;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(function(){el.classList.remove('show')},2200)}
@@ -348,42 +354,45 @@
       function defaultGlobals(){return {
         airRate:40, divisor:6000, rounding:0.5, airFixed:0,
         seaUsd:4000, fx:7.2, volumeCapacity:68, weightCapacity:26000, seaFixed:0, seaMode:'max',
-        defaultDays:35, strongThreshold:2, candidateThreshold:1, demandBasis:'conditional',
+        defaultDays:35, strongThreshold:2, candidateThreshold:1,
         balanceMode:'budget', budget:'', topN:3, selectionThreshold:1
       }}
 
       function blankProduct(index){return {
         id:uid(),sku:'SKU-'+String(index||1).padStart(3,'0'),name:'',category:'',transportRule:'auto',
         qty:10,testUnitPrice:100,packMode:'carton',cartons:1,length:60,width:50,height:40,grossPerCarton:8,batchVolume:0.12,batchGross:8,confirmedChargeable:'',manualSeaCost:'',
-        successRate:25,dailySales:8,marginMode:'breakdown',manualMargin:30,sellingExVat:100,bulkPrice:50,otherVariable:20,days:'',optionValue:0,notes:''
+        productPoints:'',days:'',notes:''
       }}
 
       function normalizeGlobals(raw){
         const g=Object.assign(defaultGlobals(),raw||{});
         if(!['max','volume','weight','zero','manual'].includes(g.seaMode))g.seaMode='max';
-        if(!['conditional','unconditional'].includes(g.demandBasis))g.demandBasis='conditional';
         if(!['budget','topN'].includes(g.balanceMode))g.balanceMode='budget';
+        delete g.demandBasis;
         return g
       }
       function normalizeProduct(raw,index){
-        const p=Object.assign(blankProduct(index+1),raw||{},{id:uid()});
+        const source=raw||{},p=Object.assign(blankProduct(index+1),source,{id:uid()});
+        if(!Object.prototype.hasOwnProperty.call(source,'productPoints'))p.productPoints='';
         if(!['auto','required','blocked'].includes(p.transportRule))p.transportRule='auto';
         if(!['carton','batch'].includes(p.packMode))p.packMode='carton';
-        if(!['breakdown','manual'].includes(p.marginMode))p.marginMode='breakdown';
+        ['successRate','dailySales','marginMode','manualMargin','sellingExVat','bulkPrice','otherVariable','optionValue'].forEach(function(key){delete p[key]});
         return p
       }
 
       function sampleProducts(){
-        const a=blankProduct(1);Object.assign(a,{name:'标准轻抛高潜力',category:'家居',length:60,width:50,height:40,grossPerCarton:8,successRate:25,dailySales:8,sellingExVat:100,bulkPrice:50,otherVariable:20});
-        const b=blankProduct(2);Object.assign(b,{name:'高密度稳定款',category:'DIY',length:50,width:40,height:20,grossPerCarton:20,successRate:22,dailySales:6,sellingExVat:95,bulkPrice:48,otherVariable:19});
-        const c=blankProduct(3);Object.assign(c,{name:'严重抛重常青品',category:'花园',length:100,width:80,height:60,grossPerCarton:5,successRate:25,dailySales:8,sellingExVat:100,bulkPrice:50,otherVariable:20,days:14});
+        const a=blankProduct(1);Object.assign(a,{name:'标准轻抛高潜力',category:'家居',length:60,width:50,height:40,grossPerCarton:8,productPoints:1});
+        const b=blankProduct(2);Object.assign(b,{name:'高密度稳定款',category:'DIY',length:50,width:40,height:20,grossPerCarton:20,productPoints:.8});
+        const c=blankProduct(3);Object.assign(c,{name:'严重抛重常青品',category:'花园',length:100,width:80,height:60,grossPerCarton:5,productPoints:.6,days:14});
         return [a,b,c]
       }
 
-      let state={version:STATE_VERSION,globals:defaultGlobals(),products:sampleProducts()};
+      let state={version:STATE_VERSION,globals:defaultGlobals(),products:sampleProducts()},migratedLegacy=false;
       try{
-        const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');
-        if(saved&&saved.version===STATE_VERSION&&saved.globals&&Array.isArray(saved.products)){
+        const currentRaw=localStorage.getItem(STORAGE_KEY),legacyRaw=currentRaw===null?localStorage.getItem(LEGACY_STORAGE_KEY):null;
+        const saved=JSON.parse((currentRaw===null?legacyRaw:currentRaw)||'null');
+        if(saved&&saved.globals&&Array.isArray(saved.products)){
+          migratedLegacy=currentRaw===null&&legacyRaw!==null;
           state={version:STATE_VERSION,globals:normalizeGlobals(saved.globals),products:saved.products.map(normalizeProduct)};
         }
       }catch(error){}
@@ -410,12 +419,12 @@
         '</div></div>'+
         '<div class="setting-card"><div class="setting-title"><h3>决策与平衡点</h3><span>阈值可回测调整</span></div><div class="field-grid">'+
           fieldGlobal('defaultDays','默认有效提前天数','天',g.defaultDays,'number','1','产品可单独覆盖')+
-          fieldGlobal('strongThreshold','强优先阈值','AAI',g.strongThreshold,'number','0.1','初始建议2.0')+
-          fieldGlobal('candidateThreshold','候选阈值','AAI',g.candidateThreshold,'number','0.1','数学平衡点通常1.0')+
-          '<div class="field"><label>日销量数据口径 <span class="help" title="成功款日销量需要乘成功率；全体测款平均日销量已含失败款，不应重复乘成功率">?</span></label><select data-global="demandBasis"><option value="conditional"'+sel(g.demandBasis,'conditional')+'>成功款日销量（乘成功率）</option><option value="unconditional"'+sel(g.demandBasis,'unconditional')+'>全体测款平均（不再乘成功率）</option></select><small>这是最重要的防重复计算设置</small></div>'+
+          fieldGlobal('strongThreshold','高优先内部线','AAI',g.strongThreshold,'number','0.1','示例值2.0，正式值需回测')+
+          fieldGlobal('candidateThreshold','中优先内部线','AAI',g.candidateThreshold,'number','0.1','示例值1.0，正式值需回测')+
+          '<div class="field"><label>产品点定义</label><div class="input-wrap"><input type="text" value="1点 = ¥120,000/年" readonly></div><small>固定为产品成功后的年毛利潜力</small></div>'+
           '<div class="field"><label>方案选择方式</label><select data-global="balanceMode"><option value="budget"'+sel(g.balanceMode,'budget')+'>按空运增量预算</option><option value="topN"'+sel(g.balanceMode,'topN')+'>按排名最多选N个</option></select></div>'+
           (g.balanceMode==='budget'?fieldGlobal('budget','空运增量预算','元',g.budget,'number','1','留空表示不限制'):fieldGlobal('topN','最多选择N个','个',g.topN,'number','1','仅纳入达到最低AAI的产品'))+
-          fieldGlobal('selectionThreshold','最低入选AAI','',g.selectionThreshold,'number','0.1','通常不低于1.0')+
+          fieldGlobal('selectionThreshold','当前最低入选线','AAI',g.selectionThreshold,'number','0.1','按公司策略和空运预算设置')+
         '</div></div>'
       }
 
@@ -424,31 +433,32 @@
         return '<div class="field"><label>'+esc(label)+'</label><div class="input-wrap"><input data-global="'+key+'" type="'+(type||'number')+'" step="'+(step||'any')+'"'+(limits[key]||'')+' inputmode="decimal" value="'+valueAttr(value)+'">'+(unit?'<span class="unit">'+esc(unit)+'</span>':'')+'</div>'+(help?'<small>'+esc(help)+'</small>':'')+'</div>'
       }
       function sel(a,b){return String(a)===String(b)?' selected':''}
-      function chk(v){return v?' checked':''}
 
       function renderGlobals(){$('#globalSettings').innerHTML=globalCard()+'<div class="global-errors" id="globalErrors" hidden></div>';updateGlobalErrors()}
 
       function productCard(p,index){
         const c=calculate(p);
         const days=p.days===''?state.globals.defaultDays:p.days;
+        const hasPoints=hasNumber(p.productPoints)&&n(p.productPoints)>=0;
+        const pointsText=hasPoints?fmt(c.points,2)+'点':'—';
+        const annualText=hasPoints?money(c.annualGrossProfit):'—';
+        const acceleratedText=hasPoints?money(c.acceleratedValue):'—';
         const cartonFields='<div class="field"><label>外箱数</label><input data-field="cartons" type="number" min="1" step="1" inputmode="numeric" value="'+valueAttr(p.cartons)+'"></div>'+field('length','单箱长','cm',p.length)+field('width','单箱宽','cm',p.width)+field('height','单箱高','cm',p.height)+field('grossPerCarton','单箱毛重','kg',p.grossPerCarton);
         const batchFields=field('batchVolume','整批总体积','m³',p.batchVolume)+field('batchGross','整批总实重','kg',p.batchGross);
-        const breakdown=p.marginMode==='breakdown'?(field('sellingExVat','不含VAT售价','元/件',p.sellingExVat)+field('bulkPrice','预计大货采购价','元/件',p.bulkPrice)+field('otherVariable','其他单件变动成本','元/件',p.otherVariable)):(field('manualMargin','单件贡献利润','元/件',p.manualMargin));
         return '<details class="product-card" data-id="'+p.id+'" open><summary class="product-summary"><div class="product-name-line"><span class="rank-dot" id="rank-'+p.id+'">'+(index+1)+'</span><div class="product-title"><b id="title-'+p.id+'">'+esc(p.name||'未命名产品')+'</b><span id="meta-'+p.id+'">'+esc(p.sku||'未填SKU')+' · 测试 '+fmt(n(p.qty),0)+' 件</span></div></div><div class="summary-metric"><b id="aai-'+p.id+'">'+aaiText(c.valid?c.aai:NaN)+'</b><span>空运加速指数</span></div><span id="status-'+p.id+'" class="status '+c.statusClass+'">'+esc(c.recommendation)+'</span></summary><div class="product-body"><div class="product-groups">'+
           '<div class="product-group"><h4>基本与测试采购</h4><div class="mini-grid">'+
             '<div class="field"><label>SKU编号</label><input data-field="sku" type="text" value="'+valueAttr(p.sku)+'"></div><div class="field"><label>产品名称</label><input data-field="name" type="text" value="'+valueAttr(p.name)+'" placeholder="必填"></div><div class="field"><label>类目</label><input data-field="category" type="text" value="'+valueAttr(p.category)+'" placeholder="可选"></div><div class="field"><label>运输规则</label><select data-field="transportRule"><option value="auto"'+sel(p.transportRule,'auto')+'>自动判断</option><option value="required"'+sel(p.transportRule,'required')+'>必须空运</option><option value="blocked"'+sel(p.transportRule,'blocked')+'>禁止空运</option></select></div>'+field('qty','测试数量','件',p.qty,'1')+field('testUnitPrice','测试采购单价','元/件',p.testUnitPrice)+
           '</div><div class="computed" id="test-'+p.id+'">测试采购总额：<b>'+money(c.testPurchase)+'</b><br>该金额仅用于首批预算，不参与AAI排序。</div></div>'+
           '<div class="product-group"><h4>最终外箱与运输</h4><div class="mini-grid"><div class="field full"><label>包装录入模式</label><select data-field="packMode"><option value="carton"'+sel(p.packMode,'carton')+'>按相同规格外箱</option><option value="batch"'+sel(p.packMode,'batch')+'>按整批总体积/实重</option></select></div>'+(p.packMode==='carton'?cartonFields:batchFields)+field('confirmedChargeable','货代确认计费重','kg（可空）',p.confirmedChargeable)+field('manualSeaCost','手工海运成本','元（按需）',p.manualSeaCost)+'</div><div class="computed" id="shipping-'+p.id+'">总体积 <b>'+fmt(c.volume,4)+'m³</b> · 总实重 <b>'+fmt(c.gross,2)+'kg</b><br>体积重 <b>'+fmt(c.volumeWeight,2)+'kg</b> · 计费重 <b>'+fmt(c.chargeable,2)+'kg</b> · '+esc(c.weightBasis)+'<br>空运 <b>'+money(c.air)+'</b> · 海运 <b>'+money(c.sea)+'</b> · 海运口径：'+esc(c.seaBasis)+'</div></div>'+
-          '<div class="product-group"><h4>正常大货与时间价值</h4><div class="mini-grid">'+
-            field('successRate','历史同类成功率','%',p.successRate)+field('dailySales',state.globals.demandBasis==='conditional'?'成功后预计日销量':'全体测款平均日销量','件/天',p.dailySales)+
-            '<div class="field full"><label>贡献利润录入</label><select data-field="marginMode"><option value="breakdown"'+sel(p.marginMode,'breakdown')+'>用售价和成本计算</option><option value="manual"'+sel(p.marginMode,'manual')+'>直接输入单件贡献利润</option></select></div>'+breakdown+
-            field('days','有效提前天数','天；空则继承'+state.globals.defaultDays,p.days)+field('optionValue','可验证的额外期权价值','元；默认0',p.optionValue)+
-          '</div><div class="computed" id="business-'+p.id+'">正常大货单件贡献：<b>'+money(c.margin)+'</b><br>有效提前天数：<b>'+fmt(n(days),1)+'天</b> · 预期提前价值：<b>'+money(c.expectedValue)+'</b><br>盈亏平衡成功率：<b>'+(c.breakEvenProb===null?'—':pct(c.breakEvenProb))+'</b> · 盈亏平衡提前天数：<b>'+(c.breakEvenDays===null?'—':fmt(c.breakEvenDays,1)+'天')+'</b></div></div>'+
+          '<div class="product-group"><h4>产品点与时间价值</h4><div class="mini-grid">'+
+            field('productPoints','产品点（1点=年毛利12万元）','点',p.productPoints,'0.01')+
+            field('days','有效提前天数','天；空则继承'+state.globals.defaultDays,p.days)+
+          '</div><div class="computed" id="business-'+p.id+'">产品点：<b>'+pointsText+'</b> · 年毛利潜力：<b>'+annualText+'</b><br>有效提前天数：<b>'+fmt(n(days),1)+'天</b> · 提前毛利潜力：<b>'+acceleratedText+'</b><br>成功情景盈亏平衡点数：<b>'+(c.breakEvenPoints===null?'—':fmt(c.breakEvenPoints,3)+'点')+'</b> · 盈亏平衡提前天数：<b>'+(c.breakEvenDays===null?'—':fmt(c.breakEvenDays,1)+'天')+'</b></div></div>'+
         '</div><div class="product-actions"><div class="left"><button class="btn small" type="button" data-action="duplicate">复制产品</button><button class="btn small" type="button" data-action="focus-result">查看排名</button></div><div class="right"><button class="btn small danger" type="button" data-action="delete">删除</button></div></div></div></details>'
       }
 
       function field(key,label,unit,value,step){
-        const limits={qty:' min="1"',testUnitPrice:' min="0"',cartons:' min="1"',length:' min="0"',width:' min="0"',height:' min="0"',grossPerCarton:' min="0"',batchVolume:' min="0"',batchGross:' min="0"',confirmedChargeable:' min="0"',manualSeaCost:' min="0"',successRate:' min="0" max="100"',dailySales:' min="0"',sellingExVat:' min="0"',bulkPrice:' min="0"',otherVariable:' min="0"',days:' min="0"',optionValue:' min="0"'};
+        const limits={qty:' min="1"',testUnitPrice:' min="0"',cartons:' min="1"',length:' min="0"',width:' min="0"',height:' min="0"',grossPerCarton:' min="0"',batchVolume:' min="0"',batchGross:' min="0"',confirmedChargeable:' min="0"',manualSeaCost:' min="0"',productPoints:' min="0"',days:' min="0"'};
         return '<div class="field"><label>'+esc(label)+'</label><div class="input-wrap"><input data-field="'+key+'" type="number" step="'+(step||'any')+'"'+(limits[key]||'')+' inputmode="decimal" value="'+valueAttr(value)+'">'+(unit?'<span class="unit">'+esc(unit)+'</span>':'')+'</div></div>'
       }
 
@@ -474,8 +484,8 @@
         if(['max','weight'].includes(g.seaMode)&&(!hasNumber(g.weightCapacity)||n(g.weightCapacity)<=0))errors.push('有效装载重量必须大于0');
         if(!hasNumber(g.defaultDays)||n(g.defaultDays)<0)errors.push('默认有效提前天数不得为空或为负数');
         if(!hasNumber(g.strongThreshold)||n(g.strongThreshold)<0||!hasNumber(g.candidateThreshold)||n(g.candidateThreshold)<0)errors.push('AAI阈值必须填写且不得为负数');
-        else if(n(g.strongThreshold)<n(g.candidateThreshold))errors.push('强优先阈值不能低于候选阈值');
-        if(!hasNumber(g.selectionThreshold)||n(g.selectionThreshold)<0)errors.push('最低入选AAI必须填写且不得为负数');
+        else if(n(g.strongThreshold)<n(g.candidateThreshold))errors.push('高优先内部线不能低于中优先内部线');
+        if(!hasNumber(g.selectionThreshold)||n(g.selectionThreshold)<0)errors.push('当前最低入选线必须填写且不得为负数');
         if(g.balanceMode==='budget'&&g.budget!==''&&(!hasNumber(g.budget)||n(g.budget)<0))errors.push('空运增量预算不得为负数');
         if(g.balanceMode==='topN'&&(!hasNumber(g.topN)||!Number.isInteger(n(g.topN))||n(g.topN)<1))errors.push('最多选择数量必须为正整数');
         return errors
@@ -506,47 +516,45 @@
         else{seaLine=container*Math.max(volumeShare,weightShare);seaBasis=volumeShare>=weightShare?'体积限制':'重量限制'}
         const sea=seaLine+n(g.seaFixed);
         const delta=air-sea;
-        const margin=p.marginMode==='manual'?n(p.manualMargin):n(p.sellingExVat)-n(p.bulkPrice)-n(p.otherVariable);
         const days=p.days===''?n(g.defaultDays):n(p.days);
-        const probability=Math.min(1,Math.max(0,n(p.successRate)/100));
-        const demandFactor=g.demandBasis==='conditional'?probability:1;
-        const optionValue=Math.max(0,n(p.optionValue));
-        const expectedValue=Math.max(0,demandFactor*Math.max(0,n(p.dailySales))*Math.max(0,margin)*Math.max(0,days)+optionValue);
-        let aai=0;if(delta<=0&&expectedValue>0)aai=Infinity;else if(delta>0)aai=expectedValue/delta;
-        const net=expectedValue-delta;
+        const points=Math.max(0,n(p.productPoints));
+        const annualGrossProfit=points*PRODUCT_POINT_ANNUAL_GP;
+        const acceleratedValue=annualGrossProfit*Math.max(0,days)/DAYS_PER_YEAR;
+        let aai=0;if(delta<=0&&acceleratedValue>0)aai=Infinity;else if(delta>0)aai=acceleratedValue/delta;
+        const net=acceleratedValue-delta;
         const packCountValid=p.packMode!=='carton'||(hasNumber(p.cartons)&&Number.isInteger(n(p.cartons))&&n(p.cartons)>0);
-        const marginFieldsValid=p.marginMode==='manual'?hasNumber(p.manualMargin):hasNumber(p.sellingExVat)&&n(p.sellingExVat)>=0&&hasNumber(p.bulkPrice)&&n(p.bulkPrice)>=0&&hasNumber(p.otherVariable)&&n(p.otherVariable)>=0;
         const manualSeaValid=g.seaMode!=='manual'||hasNumber(p.manualSeaCost)&&n(p.manualSeaCost)>=0;
+        const confirmedChargeableValid=p.confirmedChargeable===''||(hasNumber(p.confirmedChargeable)&&n(p.confirmedChargeable)>0);
         const daysValid=p.days===''||hasNumber(p.days);
-        const valid=validateGlobals()&&String(p.name||'').trim()!==''&&hasNumber(p.qty)&&Number.isInteger(n(p.qty))&&n(p.qty)>0&&hasNumber(p.testUnitPrice)&&n(p.testUnitPrice)>=0&&packCountValid&&volume>0&&gross>0&&chargeable>0&&hasNumber(p.successRate)&&n(p.successRate)>=0&&n(p.successRate)<=100&&hasNumber(p.dailySales)&&n(p.dailySales)>=0&&marginFieldsValid&&manualSeaValid&&daysValid&&days>=0;
+        const logisticsFinite=[volume,gross,volumeWeight,chargeable,air,sea,delta].every(Number.isFinite);
+        const valid=validateGlobals()&&String(p.name||'').trim()!==''&&hasNumber(p.qty)&&Number.isInteger(n(p.qty))&&n(p.qty)>0&&hasNumber(p.testUnitPrice)&&n(p.testUnitPrice)>=0&&packCountValid&&logisticsFinite&&volume>0&&gross>0&&chargeable>0&&confirmedChargeableValid&&hasNumber(p.productPoints)&&n(p.productPoints)>=0&&Number.isFinite(annualGrossProfit)&&Number.isFinite(acceleratedValue)&&manualSeaValid&&daysValid&&days>=0;
         let recommendation='数据不完整',statusClass='review';
         if(p.transportRule==='blocked'){recommendation='禁止空运';statusClass='blocked'}
         else if(!valid){recommendation='数据不完整';statusClass='review'}
         else if(p.transportRule==='required'){recommendation='必须空运';statusClass='dominant'}
-        else if(delta<=0){recommendation='空运成本占优';statusClass='dominant'}
-        else if(margin<=0){recommendation='先复核利润';statusClass='review'}
-        else if(expectedValue<=0){recommendation='没有加速价值';statusClass='sea'}
-        else if(aai>=n(g.strongThreshold)){recommendation='强优先空运';statusClass='strong'}
-        else if(aai>=n(g.candidateThreshold)){recommendation='候选空运';statusClass='candidate'}
-        else{recommendation='原则上海运';statusClass='sea'}
-        const denomP=Math.max(0,n(p.dailySales))*Math.max(0,margin)*Math.max(0,days);
-        const valueGap=Math.max(0,delta-optionValue);
-        const breakEvenProb=g.demandBasis==='conditional'&&delta>0&&denomP>0?valueGap/denomP:null;
-        const denomD=(g.demandBasis==='conditional'?probability:1)*Math.max(0,n(p.dailySales))*Math.max(0,margin);
-        const breakEvenDays=delta>0&&denomD>0?valueGap/denomD:null;
+        else if(delta<0){recommendation='空运成本占优';statusClass='dominant'}
+        else if(delta===0&&acceleratedValue>0){recommendation='同成本优先空运';statusClass='dominant'}
+        else if(delta===0){recommendation='两种方式无差异';statusClass='sea'}
+        else if(acceleratedValue<=0){recommendation='没有加速价值';statusClass='sea'}
+        else if(aai>=n(g.strongThreshold)){recommendation='高优先';statusClass='strong'}
+        else if(aai>=n(g.candidateThreshold)){recommendation='中优先';statusClass='candidate'}
+        else{recommendation='低优先';statusClass='sea'}
+        const breakEvenPoints=delta<=0?0:(days>0?delta*DAYS_PER_YEAR/(PRODUCT_POINT_ANNUAL_GP*days):null);
+        const breakEvenDays=delta<=0?0:(annualGrossProfit>0?delta*DAYS_PER_YEAR/annualGrossProfit:null);
         const weightBasis=n(p.confirmedChargeable)>0?'使用货代确认计费重':(volumeWeight>gross?'抛重计费':'实重计费');
-        return {p:p,valid:valid,volume:volume,gross:gross,volumeWeight:volumeWeight,chargeable:chargeable,weightBasis:weightBasis,air:air,sea:sea,seaBasis:seaBasis,delta:delta,margin:margin,days:days,probability:probability,expectedValue:expectedValue,aai:aai,net:net,recommendation:recommendation,statusClass:statusClass,breakEvenProb:breakEvenProb,breakEvenDays:breakEvenDays,testPurchase:n(p.qty)*n(p.testUnitPrice),throwRatio:gross>0?chargeable/gross:null}
+        return {p:p,valid:valid,volume:volume,gross:gross,volumeWeight:volumeWeight,chargeable:chargeable,weightBasis:weightBasis,air:air,sea:sea,seaBasis:seaBasis,delta:delta,points:points,annualGrossProfit:annualGrossProfit,days:days,acceleratedValue:acceleratedValue,aai:aai,net:net,recommendation:recommendation,statusClass:statusClass,breakEvenPoints:breakEvenPoints,breakEvenDays:breakEvenDays,testPurchase:n(p.qty)*n(p.testUnitPrice),throwRatio:gross>0?chargeable/gross:null}
       }
 
       function compareCalc(a,b){
-        const aa=a.aai===Infinity?1e99:a.aai,bb=b.aai===Infinity?1e99:b.aai;
-        if(bb!==aa)return bb-aa;if(b.net!==a.net)return b.net-a.net;return b.expectedValue-a.expectedValue
+        if(a.aai===Infinity||b.aai===Infinity){if(a.aai!==b.aai)return a.aai===Infinity?-1:1}
+        else if(b.aai!==a.aai)return b.aai-a.aai;
+        if(b.net!==a.net)return b.net-a.net;return b.acceleratedValue-a.acceleratedValue
       }
 
       function buildPlan(calcs){
         const g=state.globals,sorted=calcs.filter(function(c){return c.valid}).slice().sort(compareCalc),selected=new Set(),required=sorted.filter(function(c){return c.p.transportRule==='required'}),blocked=new Set(sorted.filter(function(c){return c.p.transportRule==='blocked'}).map(function(c){return c.p.id}));
         required.forEach(function(c){selected.add(c.p.id)});
-        const eligible=sorted.filter(function(c){return !blocked.has(c.p.id)&&c.p.transportRule!=='required'&&(c.delta<=0||(c.expectedValue>0&&c.aai>=n(g.selectionThreshold,1)))});
+        const eligible=sorted.filter(function(c){return !blocked.has(c.p.id)&&c.p.transportRule!=='required'&&(c.delta<0||(c.delta===0&&c.acceleratedValue>0)||(c.delta>0&&c.acceleratedValue>0&&c.aai>=n(g.selectionThreshold,1)))});
         if(g.balanceMode==='topN'){
           const target=Math.max(required.length,Math.floor(n(g.topN)));
           eligible.forEach(function(c){if(selected.size<target)selected.add(c.p.id)})
@@ -561,18 +569,18 @@
 
       function renderResults(){
         const all=state.products.map(calculate),plan=buildPlan(all),sorted=plan.sorted,chosen=sorted.filter(function(c){return plan.selected.has(c.p.id)});
-        const totalTest=all.reduce(function(s,c){return s+c.testPurchase},0),totalDelta=chosen.reduce(function(s,c){return s+Math.max(0,c.delta)},0),totalValue=chosen.reduce(function(s,c){return s+c.expectedValue},0),totalNet=chosen.reduce(function(s,c){return s+c.net},0),strong=all.filter(function(c){return c.valid&&c.aai>=n(state.globals.strongThreshold)&&c.p.transportRule!=='blocked'}).length;
+        const totalTest=all.reduce(function(s,c){return s+c.testPurchase},0),totalDelta=chosen.reduce(function(s,c){return s+Math.max(0,c.delta)},0),totalValue=chosen.reduce(function(s,c){return s+c.acceleratedValue},0),totalNet=chosen.reduce(function(s,c){return s+c.net},0),strong=all.filter(function(c){return c.valid&&c.aai>=n(state.globals.strongThreshold)&&c.p.transportRule!=='blocked'}).length;
         $('#mobilePlan').textContent=chosen.length+' 个空运 · '+money(totalDelta);
-        const summaries='<div class="summary-cards">'+summaryCard('有效SKU',sorted.length+'个')+summaryCard('强优先产品',strong+'个')+summaryCard('当前选择空运',chosen.length+'个',true)+summaryCard('空运增量成本',money(totalDelta))+summaryCard('预期提前价值',money(totalValue))+summaryCard('预期净价值',money(totalNet),true)+summaryCard('测试采购预算',money(totalTest))+summaryCard('最后入选AAI',chosen.length?aaiText(chosen[chosen.length-1].aai):'—')+'</div>';
+        const summaries='<div class="summary-cards">'+summaryCard('有效SKU',sorted.length+'个')+summaryCard('高优先产品',strong+'个')+summaryCard('当前选择空运',chosen.length+'个',true)+summaryCard('空运增量成本',money(totalDelta))+summaryCard('提前毛利潜力',money(totalValue))+summaryCard('成功情景净值',money(totalNet),true)+summaryCard('测试采购预算',money(totalTest))+summaryCard('最后入选AAI',chosen.length?aaiText(chosen[chosen.length-1].aai):'—')+'</div>';
         if(!state.products.length){$('#results').innerHTML=summaries+'<div class="empty"><b>等待产品数据</b>添加产品后会自动生成排名。</div>';return}
         let budgetStatus='不限制';
         if(state.globals.balanceMode==='budget'&&state.globals.budget!==''){
           const remaining=roundMoney(n(state.globals.budget)-totalDelta);
           budgetStatus=remaining>=0?money(remaining)+' 剩余':money(Math.abs(remaining))+' 超支（必须空运项）';
         }
-        const balance='<div class="balance-panel"><div class="balance-controls"><h3>平衡点控制</h3><p>“必须空运”和“禁止空运”优先于自动方案。预算模式按AAI从高到低检查，放不下的产品会跳过并继续检查后续较低成本项；这是快速近似组合。</p><div class="field-grid"><div class="field"><label>选择方式</label><select data-result-global="balanceMode"><option value="budget"'+sel(state.globals.balanceMode,'budget')+'>按增量预算</option><option value="topN"'+sel(state.globals.balanceMode,'topN')+'>最多选择N个</option></select></div>'+(state.globals.balanceMode==='budget'?fieldResult('budget','空运增量预算','元',state.globals.budget,'留空不限制'):fieldResult('topN','最多选择N个','个',state.globals.topN,'仅选达到最低AAI的产品'))+fieldResult('selectionThreshold','最低入选AAI','',state.globals.selectionThreshold,'建议≥1')+'</div><div class="balance-output"><div>当前增量成本<b>'+money(totalDelta)+'</b></div><div>预计净价值<b>'+money(totalNet)+'</b></div><div>入选产品<b>'+chosen.length+' / '+sorted.length+'</b></div><div>预算状态<b>'+esc(budgetStatus)+'</b></div></div></div><div class="chart-card"><h3>AAI 优先级分布</h3><p>条形越长，代表每1元空运增量成本换回的预期提前价值越高。</p>'+chart(sorted)+'</div></div>';
+        const balance='<div class="balance-panel"><div class="balance-controls"><h3>平衡点控制</h3><p>“必须空运”和“禁止空运”优先于自动方案。预算模式按AAI从高到低检查，放不下的产品会跳过并继续检查后续较低成本项；这是快速近似组合。</p><div class="field-grid"><div class="field"><label>选择方式</label><select data-result-global="balanceMode"><option value="budget"'+sel(state.globals.balanceMode,'budget')+'>按增量预算</option><option value="topN"'+sel(state.globals.balanceMode,'topN')+'>最多选择N个</option></select></div>'+(state.globals.balanceMode==='budget'?fieldResult('budget','空运增量预算','元',state.globals.budget,'留空不限制'):fieldResult('topN','最多选择N个','个',state.globals.topN,'仅选达到当前入选线的产品'))+fieldResult('selectionThreshold','当前最低入选线','AAI',state.globals.selectionThreshold,'公司内部政策阈值')+'</div><div class="balance-output"><div>当前增量成本<b>'+money(totalDelta)+'</b></div><div>成功情景净值<b>'+money(totalNet)+'</b></div><div>入选产品<b>'+chosen.length+' / '+sorted.length+'</b></div><div>预算状态<b>'+esc(budgetStatus)+'</b></div></div></div><div class="chart-card"><h3>AAI 优先级分布</h3><p>条形越长，代表每1元空运增量成本对应的成功情景提前毛利潜力越高。</p>'+chart(sorted)+'</div></div>';
         const tableRows=sorted.map(function(c,i){return resultRow(c,i,plan.selected.has(c.p.id))}).join('');
-        const table='<div class="results-table-wrap"><table><thead><tr><th>排名</th><th>产品</th><th>AAI</th><th>指标建议</th><th>当前方案</th><th>提前价值</th><th>空运成本</th><th>海运成本</th><th>增量成本</th><th>净价值</th><th>计费重</th><th>抛重</th></tr></thead><tbody>'+tableRows+'</tbody></table></div>';
+        const table='<div class="results-table-wrap"><table><thead><tr><th>排名</th><th>产品</th><th>产品点</th><th>AAI</th><th>优先级分档</th><th>当前方案</th><th>提前毛利潜力</th><th>空运成本</th><th>海运成本</th><th>增量成本</th><th>成功情景净值</th><th>计费重</th><th>抛重</th></tr></thead><tbody>'+tableRows+'</tbody></table></div>';
         const mobile='<div class="mobile-results">'+sorted.map(function(c,i){return mobileResult(c,i,plan.selected.has(c.p.id))}).join('')+'</div>';
         $('#results').innerHTML=summaries+balance+table+mobile;
         updateProductSummaries(sorted)
@@ -585,10 +593,10 @@
         const finite=sorted.filter(function(c){return Number.isFinite(c.aai)}),max=Math.max(1,...finite.map(function(c){return c.aai}));
         return '<div class="chart-list">'+sorted.slice(0,12).map(function(c){const width=c.aai===Infinity?100:Math.max(2,Math.min(100,c.aai/max*100));return '<div class="chart-row"><div class="chart-name" title="'+esc(c.p.name)+'">'+esc(c.p.name)+'</div><div class="bar-track"><div class="bar '+c.statusClass+'" style="width:'+width+'%"></div></div><div class="chart-value">'+aaiText(c.aai)+'</div></div>'}).join('')+'</div>'
       }
-      function resultRow(c,index,selected){return '<tr class="'+(selected?'selected':'')+'"><td>'+(index+1)+'</td><td class="name-cell"><b>'+esc(c.p.name)+'</b><span>'+esc(c.p.sku)+' · '+esc(c.p.category||'未分类')+'</span></td><td class="aai">'+aaiText(c.aai)+'</td><td><span class="status '+c.statusClass+'">'+esc(c.recommendation)+'</span></td><td class="'+(selected?'plan-air':'plan-sea')+'">'+(selected?'空运':'海运')+'</td><td>'+money(c.expectedValue)+'</td><td>'+money(c.air)+'</td><td>'+money(c.sea)+'</td><td>'+money(c.delta)+'</td><td>'+money(c.net)+'</td><td>'+fmt(c.chargeable,2)+'kg</td><td>'+fmt(c.throwRatio,2)+'×</td></tr>'}
+      function resultRow(c,index,selected){return '<tr class="'+(selected?'selected':'')+'"><td>'+(index+1)+'</td><td class="name-cell"><b>'+esc(c.p.name)+'</b><span>'+esc(c.p.sku)+' · '+esc(c.p.category||'未分类')+'</span></td><td>'+fmt(c.points,2)+'</td><td class="aai">'+aaiText(c.aai)+'</td><td><span class="status '+c.statusClass+'">'+esc(c.recommendation)+'</span></td><td class="'+(selected?'plan-air':'plan-sea')+'">'+(selected?'空运':'海运')+'</td><td>'+money(c.acceleratedValue)+'</td><td>'+money(c.air)+'</td><td>'+money(c.sea)+'</td><td>'+money(c.delta)+'</td><td>'+money(c.net)+'</td><td>'+fmt(c.chargeable,2)+'kg</td><td>'+fmt(c.throwRatio,2)+'×</td></tr>'}
       function mobileResult(c,index,selected){
-        const explanation='预计提前价值 '+money(c.expectedValue)+'，空运比海运'+(c.delta>=0?'多 '+money(c.delta):'少 '+money(Math.abs(c.delta)))+'，因此 AAI 为 '+aaiText(c.aai)+'。计费重 '+fmt(c.chargeable,2)+'kg，'+c.weightBasis+'。盈亏平衡成功率 '+(c.breakEvenProb===null?'—':pct(c.breakEvenProb))+'，盈亏平衡提前天数 '+(c.breakEvenDays===null?'—':fmt(c.breakEvenDays,1)+'天')+'。';
-        return '<div class="mobile-result"><div class="mobile-result-head"><div><h4>'+(index+1)+'. '+esc(c.p.name)+'</h4><div class="sku">'+esc(c.p.sku)+' · 当前方案：'+(selected?'空运':'海运')+'</div></div><span class="status '+c.statusClass+'">'+esc(c.recommendation)+'</span></div><div class="mobile-result-grid"><div>AAI<b>'+aaiText(c.aai)+'</b></div><div>预期净价值<b>'+money(c.net)+'</b></div><div>空运 / 海运<b>'+money(c.air)+' / '+money(c.sea)+'</b></div><div>增量成本<b>'+money(c.delta)+'</b></div></div><div class="explanation">'+esc(explanation)+'</div></div>'
+        const explanation=fmt(c.points,2)+'产品点对应年毛利潜力 '+money(c.annualGrossProfit)+'；'+fmt(c.days,1)+'天的提前毛利潜力为 '+money(c.acceleratedValue)+'。空运比海运'+(c.delta>=0?'多 '+money(c.delta):'少 '+money(Math.abs(c.delta)))+'，因此 AAI 为 '+aaiText(c.aai)+'。成功情景盈亏平衡点数 '+(c.breakEvenPoints===null?'—':fmt(c.breakEvenPoints,3)+'点')+'，盈亏平衡提前天数 '+(c.breakEvenDays===null?'—':fmt(c.breakEvenDays,1)+'天')+'。';
+        return '<div class="mobile-result"><div class="mobile-result-head"><div><h4>'+(index+1)+'. '+esc(c.p.name)+'</h4><div class="sku">'+esc(c.p.sku)+' · 当前方案：'+(selected?'空运':'海运')+'</div></div><span class="status '+c.statusClass+'">'+esc(c.recommendation)+'</span></div><div class="mobile-result-grid"><div>产品点 / AAI<b>'+fmt(c.points,2)+' / '+aaiText(c.aai)+'</b></div><div>成功情景净值<b>'+money(c.net)+'</b></div><div>空运 / 海运<b>'+money(c.air)+' / '+money(c.sea)+'</b></div><div>增量成本<b>'+money(c.delta)+'</b></div></div><div class="explanation">'+esc(explanation)+'</div></div>'
       }
 
       function updateProductSummaries(sorted){
@@ -602,7 +610,7 @@
           if(meta)meta.textContent=(p.sku||'未填SKU')+' · 测试 '+fmt(n(p.qty),0)+' 件';
           if(test)test.innerHTML='测试采购总额：<b>'+money(c.testPurchase)+'</b><br>该金额仅用于首批预算，不参与AAI排序。';
           if(shipping)shipping.innerHTML='总体积 <b>'+fmt(c.volume,4)+'m³</b> · 总实重 <b>'+fmt(c.gross,2)+'kg</b><br>体积重 <b>'+fmt(c.volumeWeight,2)+'kg</b> · 计费重 <b>'+fmt(c.chargeable,2)+'kg</b> · '+esc(c.weightBasis)+'<br>空运 <b>'+money(c.air)+'</b> · 海运 <b>'+money(c.sea)+'</b> · 海运口径：'+esc(c.seaBasis);
-          if(business)business.innerHTML='正常大货单件贡献：<b>'+money(c.margin)+'</b><br>有效提前天数：<b>'+fmt(c.days,1)+'天</b> · 预期提前价值：<b>'+money(c.expectedValue)+'</b><br>盈亏平衡成功率：<b>'+(c.breakEvenProb===null?'—':pct(c.breakEvenProb))+'</b> · 盈亏平衡提前天数：<b>'+(c.breakEvenDays===null?'—':fmt(c.breakEvenDays,1)+'天')+'</b>';
+          if(business){const hasPoints=hasNumber(p.productPoints)&&n(p.productPoints)>=0;business.innerHTML='产品点：<b>'+(hasPoints?fmt(c.points,2)+'点':'—')+'</b> · 年毛利潜力：<b>'+(hasPoints?money(c.annualGrossProfit):'—')+'</b><br>有效提前天数：<b>'+fmt(c.days,1)+'天</b> · 提前毛利潜力：<b>'+(hasPoints?money(c.acceleratedValue):'—')+'</b><br>成功情景盈亏平衡点数：<b>'+(c.breakEvenPoints===null?'—':fmt(c.breakEvenPoints,3)+'点')+'</b> · 盈亏平衡提前天数：<b>'+(c.breakEvenDays===null?'—':fmt(c.breakEvenDays,1)+'天')+'</b>'}
         })
       }
 
@@ -617,7 +625,7 @@
       document.addEventListener('change',function(event){
         const g=event.target.dataset.global;if(g){state.globals[g]=event.target.value;renderAll();return}
         const rg=event.target.dataset.resultGlobal;if(rg){state.globals[rg]=event.target.value;renderAll();save();return}
-        const fieldName=event.target.dataset.field;if(fieldName){const card=event.target.closest('[data-id]'),p=card&&state.products.find(function(x){return x.id===card.dataset.id});if(!p)return;p[fieldName]=event.target.value;if(['packMode','marginMode'].includes(fieldName))renderProducts();recalculate()}
+        const fieldName=event.target.dataset.field;if(fieldName){const card=event.target.closest('[data-id]'),p=card&&state.products.find(function(x){return x.id===card.dataset.id});if(!p)return;p[fieldName]=event.target.value;if(fieldName==='packMode')renderProducts();recalculate()}
       });
       document.addEventListener('click',function(event){
         const action=event.target.dataset.action;if(!action)return;const card=event.target.closest('[data-id]'),index=card?state.products.findIndex(function(x){return x.id===card.dataset.id}):-1;if(index<0)return;
@@ -632,17 +640,18 @@
 
       $('#exportDataBtn').addEventListener('click',function(){download('新品空运优先级-参数-'+dateStamp()+'.json',JSON.stringify(state,null,2),'application/json;charset=utf-8');toast('参数文件已导出')});
       $('#importBtn').addEventListener('click',function(){$('#importFile').click()});
-      $('#importFile').addEventListener('change',function(event){const file=event.target.files&&event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(){try{const incoming=JSON.parse(reader.result);if(!incoming||!incoming.globals||!Array.isArray(incoming.products))throw new Error('格式错误');if(state.products.length&&!confirm('导入将替换当前 '+state.products.length+' 个产品，是否继续？'))return;state={version:STATE_VERSION,globals:normalizeGlobals(incoming.globals),products:incoming.products.map(normalizeProduct)};renderAll();save();toast('数据导入成功')}catch(error){alert('无法导入：文件格式不正确。')}};reader.readAsText(file);event.target.value=''});
+      $('#importFile').addEventListener('change',function(event){const file=event.target.files&&event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(){try{const incoming=JSON.parse(reader.result);if(!incoming||!incoming.globals||!Array.isArray(incoming.products))throw new Error('格式错误');if(state.products.length&&!confirm('导入将替换当前 '+state.products.length+' 个产品，是否继续？'))return;const legacy=incoming.version!==STATE_VERSION;state={version:STATE_VERSION,globals:normalizeGlobals(incoming.globals),products:incoming.products.map(normalizeProduct)};renderAll();save();toast(legacy?'旧版数据已导入，请补填产品点':'数据导入成功')}catch(error){alert('无法导入：文件格式不正确。')}};reader.readAsText(file);event.target.value=''});
       $('#exportCsvBtn').addEventListener('click',function(){
         const all=state.products.map(calculate),plan=buildPlan(all),rank={};plan.sorted.forEach(function(c,i){rank[c.p.id]=i+1});
-        const headers=['排名','SKU','产品名称','类目','当前方案','指标建议','AAI','预期提前价值','空运成本','海运成本','空海运增量成本','预期净价值','总体积m3','总实重kg','体积重kg','计费重kg','抛重倍数','测试数量','测试采购单价','测试采购总额','成功率%','日销量','单件贡献利润','有效提前天数','盈亏平衡成功率%','盈亏平衡提前天数'];
-        const rows=all.filter(function(c){return c.valid}).sort(compareCalc).map(function(c){return [rank[c.p.id],c.p.sku,c.p.name,c.p.category,plan.selected.has(c.p.id)?'空运':'海运',c.recommendation,c.aai===Infinity?'INF':c.aai,c.expectedValue,c.air,c.sea,c.delta,c.net,c.volume,c.gross,c.volumeWeight,c.chargeable,c.throwRatio,c.p.qty,c.p.testUnitPrice,c.testPurchase,c.p.successRate,c.p.dailySales,c.margin,c.days,c.breakEvenProb===null?'':c.breakEvenProb*100,c.breakEvenDays===null?'':c.breakEvenDays]});
-        const csv='\ufeff'+[headers].concat(rows).map(function(row){return row.map(function(v){let cell=String(v===undefined||v===null?'':v);if(typeof v==='string'&&/^[=+\-@]/.test(cell))cell="'"+cell;return '"'+cell.replace(/"/g,'""')+'"'}).join(',')}).join('\n');download('新品空运优先级-结果-'+dateStamp()+'.csv',csv,'text/csv;charset=utf-8');toast('结果CSV已导出')
+        const headers=['排名','SKU','产品名称','类目','当前方案','优先级分档','AAI','产品点数','每点年毛利','年毛利潜力','有效提前天数','提前毛利潜力','空运成本','海运成本','空海运增量成本','成功情景净值','成功情景盈亏平衡点数','盈亏平衡提前天数','总体积m3','总实重kg','体积重kg','计费重kg','抛重倍数','测试数量','测试采购单价','测试采购总额'];
+        const rows=all.filter(function(c){return c.valid}).sort(compareCalc).map(function(c){return [rank[c.p.id],c.p.sku,c.p.name,c.p.category,plan.selected.has(c.p.id)?'空运':'海运',c.recommendation,c.aai===Infinity?'INF':c.aai,c.points,PRODUCT_POINT_ANNUAL_GP,c.annualGrossProfit,c.days,c.acceleratedValue,c.air,c.sea,c.delta,c.net,c.breakEvenPoints===null?'':c.breakEvenPoints,c.breakEvenDays===null?'':c.breakEvenDays,c.volume,c.gross,c.volumeWeight,c.chargeable,c.throwRatio,c.p.qty,c.p.testUnitPrice,c.testPurchase]});
+        const csv='\ufeff'+[headers].concat(rows).map(function(row){return row.map(function(v){let cell=String(v===undefined||v===null?'':v);if(typeof v==='string'&&/^[=+\-@\t\r]/.test(cell))cell="'"+cell;return '"'+cell.replace(/"/g,'""')+'"'}).join(',')}).join('\n');download('新品空运优先级-结果-'+dateStamp()+'.csv',csv,'text/csv;charset=utf-8');toast('结果CSV已导出')
       });
 
       function dateStamp(){const d=new Date();return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')}
 
       renderAll();
+      if(migratedLegacy){save();toast('旧版数据已保留，请为每个产品补填产品点')}
     })();
   </script>
 </body>
