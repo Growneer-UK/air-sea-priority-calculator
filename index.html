@@ -122,6 +122,20 @@
     .mini-grid .field label{font-size:11px}
     .computed{margin-top:11px;padding:11px 12px;border-radius:10px;background:#edf3f0;color:#43534f;font-size:11px;line-height:1.7}
     .computed b{color:#164d42}
+    .boundary-panel{display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,.85fr);gap:14px;padding:18px}
+    .boundary-inputs,.boundary-output{padding:17px;border:1px solid var(--line);border-radius:14px;background:#fbfcfb}
+    .boundary-inputs h3,.boundary-output h3{margin:0 0 5px;font-size:16px}
+    .boundary-intro{margin:0 0 14px;color:var(--muted);font-size:11px;line-height:1.65}
+    .boundary-output{display:flex;flex-direction:column;justify-content:center;background:linear-gradient(145deg,#0d5046,#173f4b);color:#fff}
+    .boundary-output .boundary-kicker{color:#bfe0d7;font-size:11px;font-weight:850}
+    .boundary-weight{margin:7px 0 13px;font-size:38px;font-weight:950;letter-spacing:-.035em}
+    .boundary-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .boundary-metrics div{padding:10px;border-radius:9px;background:rgba(255,255,255,.09);color:#cfe3de;font-size:10px}
+    .boundary-metrics b{display:block;margin-top:3px;color:#fff;font-size:14px}
+    .boundary-decision{margin-top:10px;padding:11px 12px;border-radius:10px;background:rgba(255,255,255,.1);font-size:12px;font-weight:850;line-height:1.55}
+    .boundary-decision.air{background:#dff4eb;color:#0b5949}.boundary-decision.sea{background:#fff0d8;color:#85510c}
+    .boundary-formula{margin-top:11px;color:#c3d9d3;font-size:10px;line-height:1.65}
+    .boundary-error{padding:20px;border-radius:10px;background:#fff0d8;color:#85510c;font-size:12px;line-height:1.7}
     .product-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px;padding-top:14px;border-top:1px dashed #d5ddd9}
     .product-actions .left,.product-actions .right{display:flex;gap:8px;flex-wrap:wrap}
     .result-dashboard{padding:18px}
@@ -198,7 +212,7 @@
       .hero{padding:39px 0 32px}.hero-grid{gap:22px}.hero h1{font-size:36px}.hero-copy{font-size:13.5px}.formula-card{padding:18px}.formula-main{font-size:18px}
       main{padding-top:15px}.notice{padding:14px;font-size:12px}.notice-icon{flex-basis:24px;height:24px}
       .section-head{align-items:flex-start;flex-direction:column}.section-head h2{font-size:21px}
-      .settings-grid,.product-groups,.method-grid,.balance-panel{grid-template-columns:1fr}.setting-card:last-child,.product-group:last-child{grid-column:auto}
+      .settings-grid,.product-groups,.method-grid,.balance-panel,.boundary-panel{grid-template-columns:1fr}.setting-card:last-child,.product-group:last-child{grid-column:auto}
       .field-grid,.mini-grid{grid-template-columns:1fr 1fr}
       .product-toolbar{align-items:flex-start}.product-toolbar .copy{flex:1 0 100%}
       .products{padding:9px}.product-summary{grid-template-columns:1fr auto;gap:9px;padding:13px}.product-summary .status{grid-column:1/-1;justify-self:start;margin-left:45px}.summary-metric b{font-size:18px}
@@ -264,8 +278,13 @@
         <div class="settings-grid" id="globalSettings"></div>
       </section>
 
+      <section class="section" id="boundarySection">
+        <div class="section-head"><div><h2>2. 边界计费重快速计算</h2><p>先算出一个产品最多能承受多少空运计费重，再与货代计费重比较。</p></div></div>
+        <div class="panel boundary-panel" id="boundaryCalculator"></div>
+      </section>
+
       <section class="section" id="productsSection">
-        <div class="section-head"><div><h2>2. 测款产品</h2><p>每个产品录入测试批包装、产品点和有效提前天数。</p></div></div>
+        <div class="section-head"><div><h2>3. 测款产品</h2><p>每个产品录入测试批包装、产品点和有效提前天数。</p></div></div>
         <div class="panel">
           <div class="product-toolbar">
             <div class="copy">测试采购价仅用于显示首批采购预算，不参与 AAI 计算。</div>
@@ -280,7 +299,7 @@
       </section>
 
       <section class="section" id="resultsSection">
-        <div class="section-head"><div><h2>3. 排名与运输方案</h2><p>主排序按 AAI 从高到低；系统按照当前内部阈值和预算生成方案。</p></div></div>
+        <div class="section-head"><div><h2>4. 排名与运输方案</h2><p>主排序按 AAI 从高到低；系统按照当前内部阈值和预算生成方案。</p></div></div>
         <div class="panel result-dashboard" id="results"></div>
       </section>
 
@@ -301,7 +320,7 @@
           </details>
           <details class="method">
             <summary>整柜海运为什么是“机会成本”？</summary>
-            <div class="method-copy">40HQ是阶梯成本。默认计算用于单品排序，不等同于最终海运发票分摊。柜子长期满载时使用占柜成本；已有确定空位时可选择“柜内有空位，干线边际成本为0”；如果一组新品导致多开整柜，应在排序后做一次装柜组合校正。</div>
+            <div class="method-copy">海运机会成本是这个SKU占用40HQ稀缺容量的价值，不一定是货代单独开给这个SKU的账单。柜子长期满载时，放入新品会挤掉其他货或更早触发下一柜，因此应分摊占柜成本；已有确定空位、无论是否放入该SKU整柜费用都不变时，干线边际成本可设为0。<div class="equation">海运机会成本<br>= 40HQ总成本 × MAX（SKU体积 ÷ 有效装载体积，SKU实重 ÷ 有效装载重量）</div>例如整柜¥28,800、有效容量68m³/26,000kg，一个产品占0.5m³和100kg，体积占比0.735%高于重量占比0.385%，海运机会成本约为¥211.76。默认计算用于单品排序，不等同于最终发票分摊；如果一组新品会导致多开整柜，应在排序后再做一次装柜组合校正。</div>
           </details>
           <details class="method">
             <summary>产品点怎么填？</summary>
@@ -356,7 +375,8 @@
         airRate:40, divisor:6000, rounding:0.5, airFixed:0,
         seaUsd:4000, fx:7.2, volumeCapacity:68, weightCapacity:26000, seaFixed:0, seaMode:'max',
         defaultDays:35, strongThreshold:2, candidateThreshold:1,
-        balanceMode:'budget', budget:'', topN:3, selectionThreshold:1
+        balanceMode:'budget', budget:'', topN:3, selectionThreshold:1,
+        boundaryPoints:.1, boundaryDays:35, boundarySeaCost:0, boundaryActualWeight:''
       }}
 
       function blankProduct(index){return {
@@ -439,6 +459,47 @@
       function sel(a,b){return String(a)===String(b)?' selected':''}
 
       function renderGlobals(){$('#globalSettings').innerHTML=globalCard()+'<div class="global-errors" id="globalErrors" hidden></div>';updateGlobalErrors()}
+
+      function boundaryValues(){
+        const g=state.globals;
+        const valid=hasNumber(g.boundaryPoints)&&n(g.boundaryPoints)>=0&&hasNumber(g.boundaryDays)&&n(g.boundaryDays)>=0&&hasNumber(g.boundarySeaCost)&&n(g.boundarySeaCost)>=0&&hasNumber(g.airRate)&&n(g.airRate)>0&&hasNumber(g.airFixed)&&n(g.airFixed)>=0;
+        const actualBlank=g.boundaryActualWeight===''||g.boundaryActualWeight===null||g.boundaryActualWeight===undefined;
+        const actualValid=actualBlank||(hasNumber(g.boundaryActualWeight)&&n(g.boundaryActualWeight)>=0);
+        if(!valid||!actualValid)return {valid:false};
+        const points=n(g.boundaryPoints),days=n(g.boundaryDays),seaCost=n(g.boundarySeaCost),actual=actualBlank?null:n(g.boundaryActualWeight);
+        const annualGrossProfit=points*PRODUCT_POINT_ANNUAL_GP;
+        const acceleratedValue=annualGrossProfit*days/DAYS_PER_YEAR;
+        const maxAirCost=acceleratedValue+seaCost;
+        const rawBoundary=(maxAirCost-n(g.airFixed))/n(g.airRate);
+        return {valid:true,points:points,days:days,seaCost:seaCost,actual:actual,annualGrossProfit:annualGrossProfit,acceleratedValue:acceleratedValue,maxAirCost:maxAirCost,rawBoundary:rawBoundary,boundaryWeight:Math.max(0,rawBoundary)}
+      }
+
+      function boundaryField(key,label,unit,value,step,help){
+        return '<div class="field"><label>'+esc(label)+'</label><div class="input-wrap"><input data-boundary="'+key+'" type="number" min="0" step="'+(step||'any')+'" inputmode="decimal" value="'+valueAttr(value)+'">'+(unit?'<span class="unit">'+esc(unit)+'</span>':'')+'</div>'+(help?'<small>'+esc(help)+'</small>':'')+'</div>'
+      }
+
+      function boundaryOutputHtml(){
+        const g=state.globals,b=boundaryValues();
+        if(!b.valid)return '<div class="boundary-error">请填写非负的产品点、提前天数和海运机会成本；实际计费重可以留空。空运单价必须大于0。</div>';
+        let decision='<div class="boundary-decision">填写“实际计费重”后，这里会直接显示空运或海运。</div>';
+        if(b.actual!==null){
+          const air=b.rawBoundary>=0&&b.actual<=b.rawBoundary+1e-9;
+          decision='<div class="boundary-decision '+(air?'air':'sea')+'">'+(air?'达到AAI=1经济线：建议空运':'超过AAI=1经济线：建议海运')+'<br>实际 '+fmt(b.actual,2)+'kg '+(air?'≤':'＞')+' 边界 '+fmt(b.boundaryWeight,2)+'kg</div>'
+        }else if(b.rawBoundary<0){decision='<div class="boundary-decision sea">空运固定费已经超过可承受金额：经济线上应走海运</div>'}
+        return '<div class="boundary-kicker">成功情景 · AAI=1</div><div class="boundary-weight">'+fmt(b.boundaryWeight,2)+'kg</div><div class="boundary-metrics"><div>产品年毛利潜力<b>'+money(b.annualGrossProfit)+'</b></div><div>提前毛利潜力<b>'+money(b.acceleratedValue)+'</b></div><div>可承受空运总成本<b>'+money(b.maxAirCost)+'</b></div><div>当前空运单价 / 固定费<b>'+money(n(g.airRate))+'/kg · '+money(n(g.airFixed))+'</b></div></div>'+decision+'<div class="boundary-formula">边界计费重 =（提前毛利潜力 + 海运机会成本 − 空运固定费）÷ 空运单价。该模块计算的是成功情景经济线；最终组合仍受预算、强制规则和最低入选线影响。</div>'
+      }
+
+      function renderBoundaryCalculator(){
+        const g=state.globals;
+        $('#boundaryCalculator').innerHTML='<div class="boundary-inputs"><h3>输入快速判断参数</h3><p class="boundary-intro">海运机会成本可直接使用某个SKU产品卡中显示的海运成本；柜内有确定空位时可填0。空运单价和固定费继承上方全局参数。</p><div class="field-grid">'+
+          boundaryField('boundaryPoints','产品点','点',g.boundaryPoints,'0.01','默认0.1点 = 年毛利潜力¥12,000')+
+          boundaryField('boundaryDays','有效提前天数','天',g.boundaryDays,'1','填写真正影响补货或销售窗口的天数')+
+          boundaryField('boundarySeaCost','海运机会成本','元',g.boundarySeaCost,'0.01','柜内有空位可填0；满柜按占柜比例')+
+          boundaryField('boundaryActualWeight','实际空运计费重','kg',g.boundaryActualWeight,'0.01','可留空；取实重和体积重较高者')+
+        '</div></div><div class="boundary-output" id="boundaryOutput">'+boundaryOutputHtml()+'</div>'
+      }
+
+      function updateBoundaryCalculator(){const el=$('#boundaryOutput');if(el)el.innerHTML=boundaryOutputHtml()}
 
       function productCard(p,index){
         const c=calculate(p);
@@ -619,15 +680,17 @@
         })
       }
 
-      function recalculate(){save();updateGlobalErrors();renderResults()}
-      function renderAll(){renderGlobals();renderProducts();renderResults()}
+      function recalculate(){save();updateGlobalErrors();updateBoundaryCalculator();renderResults()}
+      function renderAll(){renderGlobals();renderBoundaryCalculator();renderProducts();renderResults()}
 
       document.addEventListener('input',function(event){
+        const boundary=event.target.dataset.boundary;if(boundary){state.globals[boundary]=event.target.value;save();updateBoundaryCalculator();return}
         const g=event.target.dataset.global;if(g){state.globals[g]=event.target.value;recalculate();return}
         const rg=event.target.dataset.resultGlobal;if(rg){state.globals[rg]=event.target.value;save();return}
         const fieldName=event.target.dataset.field;if(fieldName){const card=event.target.closest('[data-id]'),p=card&&state.products.find(function(x){return x.id===card.dataset.id});if(!p)return;p[fieldName]=event.target.value;if(fieldName==='name'){const title=$('#title-'+p.id);if(title)title.textContent=p.name||'未命名产品'}recalculate()}
       });
       document.addEventListener('change',function(event){
+        const boundary=event.target.dataset.boundary;if(boundary){state.globals[boundary]=event.target.value;save();updateBoundaryCalculator();return}
         const g=event.target.dataset.global;if(g){state.globals[g]=event.target.value;renderAll();return}
         const rg=event.target.dataset.resultGlobal;if(rg){state.globals[rg]=event.target.value;renderAll();save();return}
         const fieldName=event.target.dataset.field;if(fieldName){const card=event.target.closest('[data-id]'),p=card&&state.products.find(function(x){return x.id===card.dataset.id});if(!p)return;p[fieldName]=event.target.value;if(fieldName==='packMode')renderProducts();recalculate()}
