@@ -128,10 +128,17 @@
     .boundary-intro{margin:0 0 14px;color:var(--muted);font-size:11px;line-height:1.65}
     .boundary-output{display:flex;flex-direction:column;justify-content:center;background:linear-gradient(145deg,#0d5046,#173f4b);color:#fff}
     .boundary-output .boundary-kicker{color:#bfe0d7;font-size:11px;font-weight:850}
-    .boundary-weight{margin:7px 0 13px;font-size:38px;font-weight:950;letter-spacing:-.035em}
+    .boundary-weight{display:inline-block;align-self:flex-start;margin:7px 0 13px;font-size:38px;font-weight:950;letter-spacing:-.035em}
     .boundary-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-    .boundary-metrics div{padding:10px;border-radius:9px;background:rgba(255,255,255,.09);color:#cfe3de;font-size:10px}
+    .boundary-metrics>div{padding:10px;border-radius:9px;background:rgba(255,255,255,.09);color:#cfe3de;font-size:10px}
     .boundary-metrics b{display:block;margin-top:3px;color:#fff;font-size:14px}
+    .calc-tooltip{position:relative;z-index:1;outline:none;cursor:help;transition:background .12s ease,box-shadow .12s ease}
+    .calc-tooltip:hover,.calc-tooltip:focus-visible,.calc-tooltip:focus{z-index:30;background:rgba(255,255,255,.17);box-shadow:0 0 0 2px rgba(255,255,255,.22)}
+    .calc-tooltip:after{content:attr(data-tooltip);position:absolute;z-index:40;left:0;bottom:calc(100% + 7px);width:max-content;max-width:min(340px,calc(100vw - 70px));padding:9px 11px;border:1px solid rgba(13,59,54,.14);border-radius:8px;background:#fff;color:#173e35;box-shadow:0 9px 25px rgba(0,0,0,.2);font-size:10.5px;font-weight:650;line-height:1.55;letter-spacing:0;white-space:normal;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(3px)}
+    .calc-tooltip:hover:after,.calc-tooltip:focus-visible:after,.calc-tooltip:focus:after{opacity:1;visibility:visible;transform:translateY(0)}
+    .boundary-metric:nth-child(even):after{right:0;left:auto}
+    .metric-help{position:absolute;top:7px;right:8px;width:15px;height:15px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.28);border-radius:50%;color:#d8ebe6;font-size:9px;font-weight:900}
+    .boundary-hover-hint{margin:-5px 0 9px;color:#bcd8d1;font-size:9.5px;line-height:1.45}
     .boundary-decision{margin-top:10px;padding:11px 12px;border-radius:10px;background:rgba(255,255,255,.1);font-size:12px;font-weight:850;line-height:1.55}
     .boundary-decision.air{background:#dff4eb;color:#0b5949}.boundary-decision.sea{background:#fff0d8;color:#85510c}
     .boundary-formula{margin-top:11px;color:#c3d9d3;font-size:10px;line-height:1.65}
@@ -332,7 +339,7 @@
           </details>
           <details class="method">
             <summary>阈值与最终选择</summary>
-            <div class="method-copy">AAI=1是<strong>成功情景经济边界</strong>：提前毛利潜力恰好等于空运相对海运分摊多出的成本。默认0.1点、提前35天时，可承受的空运新增成本为¥1,150.68；只有先计算具体SKU的海运分摊成本，才能换算该SKU的准确计费重边界（预算和强制规则仍优先）。这不是成功率加权后的真实期望盈亏线；预算受限时仍应优先按AAI排序，再观察累计空运新增成本选择截止位置。</div>
+            <div class="method-copy">AAI=1是<strong>成功情景经济边界</strong>：提前毛利潜力恰好等于空运相对海运分摊多出的成本。默认0.1点、提前50天时，可承受的空运新增成本为¥1,643.84；只有先计算具体SKU的海运分摊成本，才能换算该SKU的准确计费重边界（预算和强制规则仍优先）。这不是成功率加权后的真实期望盈亏线；预算受限时仍应优先按AAI排序，再观察累计空运新增成本选择截止位置。</div>
           </details>
         </div>
         <div class="sources">参考规则：空运体积重应按承运商合同执行，FedEx公开说明采用实重与体积重较高者；40HQ有效装载量应采用公司历史实装值。<a href="https://www.fedex.com/en-ca/resources-tools/dimensional-weight.html" target="_blank" rel="noopener">FedEx体积重说明</a></div>
@@ -349,9 +356,9 @@
     (function(){
       'use strict';
 
-      const STORAGE_KEY='air-sea-aai-calculator-v3';
-      const LEGACY_STORAGE_KEYS=['air-sea-aai-calculator-v2','air-sea-aai-calculator-v1'];
-      const STATE_VERSION=3;
+      const STORAGE_KEY='air-sea-aai-calculator-v4';
+      const LEGACY_STORAGE_KEYS=['air-sea-aai-calculator-v3','air-sea-aai-calculator-v2','air-sea-aai-calculator-v1'];
+      const STATE_VERSION=4;
       const PRODUCT_POINT_ANNUAL_GP=120000;
       const DEFAULT_PRODUCT_POINTS=.1;
       const DAYS_PER_YEAR=365;
@@ -373,10 +380,10 @@
 
       function defaultGlobals(){return {
         airRate:40, divisor:6000, rounding:0.5, airFixed:0,
-        seaUsd:8000, fx:7.2, volumeCapacity:68, weightCapacity:26000, seaFixed:0,
-        defaultDays:35, strongThreshold:2, candidateThreshold:1,
+        seaUsd:8000, fx:6.8, volumeCapacity:68, weightCapacity:26000, seaFixed:0,
+        defaultDays:50, strongThreshold:2, candidateThreshold:1,
         balanceMode:'budget', budget:'', topN:3, selectionThreshold:1,
-        boundaryPoints:.1, boundaryDays:35, boundaryVolume:.1, boundaryGross:10, boundaryActualWeight:''
+        boundaryPoints:.1, boundaryDays:50, boundaryVolume:.1, boundaryGross:10, boundaryActualWeight:'', boundaryActualWeightAuto:true
       }}
 
       function blankProduct(index){return {
@@ -386,9 +393,18 @@
       }}
 
       function normalizeGlobals(raw){
-        const g=Object.assign(defaultGlobals(),raw||{});
+        const source=raw||{},g=Object.assign(defaultGlobals(),source);
         if(!['budget','topN'].includes(g.balanceMode))g.balanceMode='budget';
+        if(typeof source.boundaryActualWeightAuto!=='boolean')g.boundaryActualWeightAuto=!hasNumber(source.boundaryActualWeight);
         ['demandBasis','seaMode','boundarySeaCost'].forEach(function(key){delete g[key]});
+        return g
+      }
+      function upgradeLegacyGlobals(raw){
+        const g=Object.assign({},raw||{});
+        if(Number(g.seaUsd)===4000)g.seaUsd=8000;
+        if(Number(g.fx)===7.2)g.fx=6.8;
+        if(Number(g.defaultDays)===35)g.defaultDays=50;
+        if(Number(g.boundaryDays)===35)g.boundaryDays=50;
         return g
       }
       function normalizeProduct(raw,index){
@@ -415,8 +431,7 @@
         const saved=JSON.parse((currentRaw===null?legacyRaw:currentRaw)||'null');
         if(saved&&saved.globals&&Array.isArray(saved.products)){
           migratedLegacy=currentRaw===null&&legacyRaw!==null;
-          if(migratedLegacy&&Number(saved.globals.seaUsd)===4000)saved.globals.seaUsd=8000;
-          state={version:STATE_VERSION,globals:normalizeGlobals(saved.globals),products:saved.products.map(normalizeProduct)};
+          state={version:STATE_VERSION,globals:normalizeGlobals(migratedLegacy?upgradeLegacyGlobals(saved.globals):saved.globals),products:saved.products.map(normalizeProduct)};
         }
       }catch(error){}
 
@@ -462,51 +477,84 @@
 
       function renderGlobals(){$('#globalSettings').innerHTML=globalCard()+'<div class="global-errors" id="globalErrors" hidden></div>';updateGlobalErrors()}
 
+      function boundaryAutoChargeableWeight(){
+        const g=state.globals;
+        if(!hasNumber(g.boundaryVolume)||n(g.boundaryVolume)<0||!hasNumber(g.boundaryGross)||n(g.boundaryGross)<0||!hasNumber(g.divisor)||n(g.divisor)<=0||!hasNumber(g.rounding)||n(g.rounding)<=0)return null;
+        const volumeWeight=n(g.boundaryVolume)*1000000/n(g.divisor);
+        return roundUp(Math.max(n(g.boundaryGross),volumeWeight),n(g.rounding))
+      }
+
       function boundaryValues(){
         const g=state.globals;
-        const valid=hasNumber(g.boundaryPoints)&&n(g.boundaryPoints)>=0&&hasNumber(g.boundaryDays)&&n(g.boundaryDays)>=0&&hasNumber(g.boundaryVolume)&&n(g.boundaryVolume)>=0&&hasNumber(g.boundaryGross)&&n(g.boundaryGross)>=0&&hasNumber(g.airRate)&&n(g.airRate)>0&&hasNumber(g.airFixed)&&n(g.airFixed)>=0&&hasNumber(g.seaUsd)&&n(g.seaUsd)>=0&&hasNumber(g.fx)&&n(g.fx)>0&&hasNumber(g.volumeCapacity)&&n(g.volumeCapacity)>0&&hasNumber(g.weightCapacity)&&n(g.weightCapacity)>0&&hasNumber(g.seaFixed)&&n(g.seaFixed)>=0;
-        const actualBlank=g.boundaryActualWeight===''||g.boundaryActualWeight===null||g.boundaryActualWeight===undefined;
-        const actualValid=actualBlank||(hasNumber(g.boundaryActualWeight)&&n(g.boundaryActualWeight)>=0);
+        const valid=hasNumber(g.boundaryPoints)&&n(g.boundaryPoints)>=0&&hasNumber(g.boundaryDays)&&n(g.boundaryDays)>=0&&hasNumber(g.boundaryVolume)&&n(g.boundaryVolume)>=0&&hasNumber(g.boundaryGross)&&n(g.boundaryGross)>=0&&hasNumber(g.divisor)&&n(g.divisor)>0&&hasNumber(g.rounding)&&n(g.rounding)>0&&hasNumber(g.airRate)&&n(g.airRate)>0&&hasNumber(g.airFixed)&&n(g.airFixed)>=0&&hasNumber(g.seaUsd)&&n(g.seaUsd)>=0&&hasNumber(g.fx)&&n(g.fx)>0&&hasNumber(g.volumeCapacity)&&n(g.volumeCapacity)>0&&hasNumber(g.weightCapacity)&&n(g.weightCapacity)>0&&hasNumber(g.seaFixed)&&n(g.seaFixed)>=0;
+        const automatic=g.boundaryActualWeightAuto!==false,autoActual=boundaryAutoChargeableWeight();
+        const actualSource=automatic?autoActual:g.boundaryActualWeight;
+        const actualBlank=actualSource===''||actualSource===null||actualSource===undefined;
+        const actualValid=actualBlank||(hasNumber(actualSource)&&n(actualSource)>=0);
         if(!valid||!actualValid)return {valid:false};
-        const points=n(g.boundaryPoints),days=n(g.boundaryDays),volume=n(g.boundaryVolume),gross=n(g.boundaryGross),actual=actualBlank?null:n(g.boundaryActualWeight);
+        const points=n(g.boundaryPoints),days=n(g.boundaryDays),volume=n(g.boundaryVolume),gross=n(g.boundaryGross),actual=actualBlank?null:n(actualSource);
+        const autoVolumeWeight=volume*1000000/n(g.divisor);
         const annualGrossProfit=points*PRODUCT_POINT_ANNUAL_GP;
         const acceleratedValue=annualGrossProfit*days/DAYS_PER_YEAR;
         const containerCost=n(g.seaUsd)*n(g.fx);
         const volumeShare=volume/n(g.volumeCapacity),weightShare=gross/n(g.weightCapacity);
         const seaAllocation=containerCost*Math.max(volumeShare,weightShare)+n(g.seaFixed);
-        const allocationBasis=volumeShare>=weightShare?'体积占比':'重量占比';
+        const allocationBasis=Math.abs(volumeShare-weightShare)<1e-12?'体积/重量占比相同':(volumeShare>weightShare?'体积占比':'重量占比');
         const maxAirCost=acceleratedValue+seaAllocation;
         const rawBoundary=(maxAirCost-n(g.airFixed))/n(g.airRate);
-        return {valid:true,points:points,days:days,volume:volume,gross:gross,actual:actual,annualGrossProfit:annualGrossProfit,acceleratedValue:acceleratedValue,seaAllocation:seaAllocation,allocationBasis:allocationBasis,maxAirCost:maxAirCost,rawBoundary:rawBoundary,boundaryWeight:Math.max(0,rawBoundary)}
+        return {valid:true,points:points,days:days,volume:volume,gross:gross,actual:actual,automaticActual:automatic,autoVolumeWeight:autoVolumeWeight,autoActual:autoActual,annualGrossProfit:annualGrossProfit,acceleratedValue:acceleratedValue,containerCost:containerCost,volumeShare:volumeShare,weightShare:weightShare,seaAllocation:seaAllocation,allocationBasis:allocationBasis,maxAirCost:maxAirCost,rawBoundary:rawBoundary,boundaryWeight:Math.max(0,rawBoundary)}
       }
 
       function boundaryField(key,label,unit,value,step,help){
         return '<div class="field"><label>'+esc(label)+'</label><div class="input-wrap"><input data-boundary="'+key+'" type="number" min="0" step="'+(step||'any')+'" inputmode="decimal" value="'+valueAttr(value)+'">'+(unit?'<span class="unit">'+esc(unit)+'</span>':'')+'</div>'+(help?'<small>'+esc(help)+'</small>':'')+'</div>'
       }
 
+      function boundaryMetric(label,value,tooltip){
+        const aria=label+'：'+value+'。计算说明：'+tooltip;
+        return '<div class="boundary-metric calc-tooltip" tabindex="0" data-tooltip="'+esc(tooltip)+'" aria-label="'+esc(aria)+'">'+esc(label)+'<b>'+esc(value)+'</b><span class="metric-help" aria-hidden="true">?</span></div>'
+      }
+
       function boundaryOutputHtml(){
         const g=state.globals,b=boundaryValues();
-        if(!b.valid)return '<div class="boundary-error">请填写非负的产品点、提前天数、整批体积和整批实重；实际计费重可以留空。空运单价、汇率及有效装载容量必须大于0。</div>';
+        if(!b.valid)return '<div class="boundary-error">请填写非负的产品点、提前天数、整批体积和整批实重；清空实际计费重会恢复自动计算。空运单价、抛重除数、计费进位、汇率及有效装载容量必须大于0。</div>';
         let decision='<div class="boundary-decision">填写“实际计费重”后，这里会直接显示空运或海运。</div>';
         if(b.actual!==null){
           const air=b.rawBoundary>=0&&b.actual<=b.rawBoundary+1e-9;
           decision='<div class="boundary-decision '+(air?'air':'sea')+'">'+(air?'达到AAI=1经济线：建议空运':'超过AAI=1经济线：建议海运')+'<br>实际 '+fmt(b.actual,2)+'kg '+(air?'≤':'＞')+' 边界 '+fmt(b.boundaryWeight,2)+'kg</div>'
         }else if(b.rawBoundary<0){decision='<div class="boundary-decision sea">空运固定费已经超过可承受金额：经济线上应走海运</div>'}
-        return '<div class="boundary-kicker">成功情景 · AAI=1</div><div class="boundary-weight">'+fmt(b.boundaryWeight,2)+'kg</div><div class="boundary-metrics"><div>产品年毛利潜力<b>'+money(b.annualGrossProfit)+'</b></div><div>提前毛利潜力<b>'+money(b.acceleratedValue)+'</b></div><div>海运分摊成本<b>'+money(b.seaAllocation)+'</b></div><div>本次分摊依据<b>'+esc(b.allocationBasis)+'</b></div><div>边界空运总成本<b>'+money(b.maxAirCost)+'</b></div><div>空运单价 / 固定费<b>'+money(n(g.airRate))+'/kg · '+money(n(g.airFixed))+'</b></div></div>'+decision+'<div class="boundary-formula">边界计费重 =（提前毛利潜力 + 海运分摊成本 − 空运固定费）÷ 空运单价；海运分摊成本按整批体积占比和重量占比中的较高者计算。</div>'
+        const annualTip='产品点 '+fmt(b.points,2)+'点 × '+money(PRODUCT_POINT_ANNUAL_GP)+'/点 = '+money(b.annualGrossProfit);
+        const acceleratedTip='提前毛利潜力 = '+money(b.annualGrossProfit)+' × '+fmt(b.days,1)+'天 ÷ 365 = '+money(b.acceleratedValue);
+        const seaTip='海运分摊成本 = 整柜 '+money(b.containerCost)+' × MAX（体积占比 '+fmt(b.volumeShare*100,4)+'%，重量占比 '+fmt(b.weightShare*100,4)+'%）+ 附加费 '+money(n(g.seaFixed))+' = '+money(b.seaAllocation)+'；取两个占比中的较高者。';
+        const basisTip='体积：'+fmt(b.volume,4)+'m³ ÷ '+fmt(n(g.volumeCapacity),2)+'m³ = '+fmt(b.volumeShare*100,4)+'%；重量：'+fmt(b.gross,2)+'kg ÷ '+fmt(n(g.weightCapacity),2)+'kg = '+fmt(b.weightShare*100,4)+'%；取较高者。';
+        const maxCostTip='边界空运总成本 = 提前毛利潜力 '+money(b.acceleratedValue)+' + 海运分摊成本 '+money(b.seaAllocation)+' = '+money(b.maxAirCost);
+        const actualAir=b.actual===null?null:b.actual*n(g.airRate)+n(g.airFixed);
+        const airTip='空运成本 = 计费重 × 空运单价 '+money(n(g.airRate))+'/kg + 固定费 '+money(n(g.airFixed))+(actualAir===null?'。':'；当前 '+fmt(b.actual,2)+'kg 对应 '+money(actualAir)+'。');
+        return '<div class="boundary-kicker">成功情景 · AAI=1</div><div class="boundary-weight">'+fmt(b.boundaryWeight,2)+'kg</div><div class="boundary-hover-hint">悬浮指标查看代入计算；手机可点按，键盘可聚焦。</div><div class="boundary-metrics">'+boundaryMetric('产品年毛利潜力',money(b.annualGrossProfit),annualTip)+boundaryMetric('提前毛利潜力',money(b.acceleratedValue),acceleratedTip)+boundaryMetric('海运分摊成本',money(b.seaAllocation),seaTip)+boundaryMetric('本次分摊依据',b.allocationBasis,basisTip)+boundaryMetric('边界空运总成本',money(b.maxAirCost),maxCostTip)+boundaryMetric('空运单价 / 固定费',money(n(g.airRate))+'/kg · '+money(n(g.airFixed)),airTip)+'</div>'+decision+'<div class="boundary-formula">边界计费重 =（提前毛利潜力 + 海运分摊成本 − 空运固定费）÷ 空运单价；海运分摊成本按整批体积占比和重量占比中的较高者计算。</div>'
       }
 
       function renderBoundaryCalculator(){
         const g=state.globals;
+        const automaticActual=g.boundaryActualWeightAuto!==false,autoActual=boundaryAutoChargeableWeight();
+        const actualDisplay=automaticActual?(autoActual===null?'':autoActual):g.boundaryActualWeight;
         $('#boundaryCalculator').innerHTML='<div class="boundary-inputs"><h3>输入快速判断参数</h3><p class="boundary-intro">填写测款整批货物的海运体积和实重，系统会按上方整柜全程费用（当前US$'+fmt(n(g.seaUsd),0)+'）自动分摊海运费，再计算空运边界计费重。</p><div class="field-grid">'+
           boundaryField('boundaryPoints','产品点','点',g.boundaryPoints,'0.01','默认0.1点 = 年毛利潜力¥12,000')+
           boundaryField('boundaryDays','有效提前天数','天',g.boundaryDays,'1','填写真正影响补货或销售窗口的天数')+
           boundaryField('boundaryVolume','整批海运体积','m³',g.boundaryVolume,'0.001','该批测试货实际占用体积')+
           boundaryField('boundaryGross','整批海运实重','kg',g.boundaryGross,'0.01','该批测试货实际总毛重')+
-          boundaryField('boundaryActualWeight','实际空运计费重','kg',g.boundaryActualWeight,'0.01','可留空；取实重和体积重较高者')+
+          boundaryField('boundaryActualWeight','实际空运计费重','kg',actualDisplay,'0.01',automaticActual?'当前为自动值：MAX（体积重，实重）并按计费规则进位；直接修改可覆盖。':'当前采用手工覆盖值；清空即可恢复自动计算。')+
         '</div></div><div class="boundary-output" id="boundaryOutput">'+boundaryOutputHtml()+'</div>'
       }
 
-      function updateBoundaryCalculator(){const el=$('#boundaryOutput');if(el)el.innerHTML=boundaryOutputHtml()}
+      function updateBoundaryCalculator(){
+        const actualInput=$('[data-boundary="boundaryActualWeight"]');
+        if(actualInput){
+          const automatic=state.globals.boundaryActualWeightAuto!==false;
+          if(automatic){const auto=boundaryAutoChargeableWeight();actualInput.value=auto===null?'':String(auto)}
+          const help=actualInput.closest('.field')&&$('small',actualInput.closest('.field'));
+          if(help)help.textContent=automatic?'当前为自动值：MAX（体积重，实重）并按计费规则进位；直接修改可覆盖。':'当前采用手工覆盖值；清空即可恢复自动计算。'
+        }
+        const el=$('#boundaryOutput');if(el)el.innerHTML=boundaryOutputHtml()
+      }
 
       function productCard(p,index){
         const c=calculate(p);
@@ -683,14 +731,22 @@
       function recalculate(){save();updateGlobalErrors();updateBoundaryCalculator();renderResults()}
       function renderAll(){renderGlobals();renderBoundaryCalculator();renderProducts();renderResults()}
 
+      function setBoundaryValue(key,value){
+        if(key==='boundaryActualWeight'){
+          state.globals.boundaryActualWeight=value;
+          state.globals.boundaryActualWeightAuto=value===''
+        }else state.globals[key]=value;
+        save();updateBoundaryCalculator()
+      }
+
       document.addEventListener('input',function(event){
-        const boundary=event.target.dataset.boundary;if(boundary){state.globals[boundary]=event.target.value;save();updateBoundaryCalculator();return}
+        const boundary=event.target.dataset.boundary;if(boundary){setBoundaryValue(boundary,event.target.value);return}
         const g=event.target.dataset.global;if(g){state.globals[g]=event.target.value;recalculate();return}
         const rg=event.target.dataset.resultGlobal;if(rg){state.globals[rg]=event.target.value;save();return}
         const fieldName=event.target.dataset.field;if(fieldName){const card=event.target.closest('[data-id]'),p=card&&state.products.find(function(x){return x.id===card.dataset.id});if(!p)return;p[fieldName]=event.target.value;if(fieldName==='name'){const title=$('#title-'+p.id);if(title)title.textContent=p.name||'未命名产品'}recalculate()}
       });
       document.addEventListener('change',function(event){
-        const boundary=event.target.dataset.boundary;if(boundary){state.globals[boundary]=event.target.value;save();updateBoundaryCalculator();return}
+        const boundary=event.target.dataset.boundary;if(boundary)return;
         const g=event.target.dataset.global;if(g){state.globals[g]=event.target.value;renderAll();return}
         const rg=event.target.dataset.resultGlobal;if(rg){state.globals[rg]=event.target.value;renderAll();save();return}
         const fieldName=event.target.dataset.field;if(fieldName){const card=event.target.closest('[data-id]'),p=card&&state.products.find(function(x){return x.id===card.dataset.id});if(!p)return;p[fieldName]=event.target.value;if(fieldName==='packMode')renderProducts();recalculate()}
@@ -708,7 +764,7 @@
 
       $('#exportDataBtn').addEventListener('click',function(){download('新品空运优先级-参数-'+dateStamp()+'.json',JSON.stringify(state,null,2),'application/json;charset=utf-8');toast('参数文件已导出')});
       $('#importBtn').addEventListener('click',function(){$('#importFile').click()});
-      $('#importFile').addEventListener('change',function(event){const file=event.target.files&&event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(){try{const incoming=JSON.parse(reader.result);if(!incoming||!incoming.globals||!Array.isArray(incoming.products))throw new Error('格式错误');if(state.products.length&&!confirm('导入将替换当前 '+state.products.length+' 个产品，是否继续？'))return;const legacy=incoming.version!==STATE_VERSION;state={version:STATE_VERSION,globals:normalizeGlobals(incoming.globals),products:incoming.products.map(normalizeProduct)};renderAll();save();toast(legacy?'旧版数据已导入，缺失产品点已按0.1补入':'数据导入成功')}catch(error){alert('无法导入：文件格式不正确。')}};reader.readAsText(file);event.target.value=''});
+      $('#importFile').addEventListener('change',function(event){const file=event.target.files&&event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(){try{const incoming=JSON.parse(reader.result);if(!incoming||!incoming.globals||!Array.isArray(incoming.products))throw new Error('格式错误');if(state.products.length&&!confirm('导入将替换当前 '+state.products.length+' 个产品，是否继续？'))return;const legacy=incoming.version!==STATE_VERSION;state={version:STATE_VERSION,globals:normalizeGlobals(legacy?upgradeLegacyGlobals(incoming.globals):incoming.globals),products:incoming.products.map(normalizeProduct)};renderAll();save();toast(legacy?'旧版数据已导入并升级为当前默认口径':'数据导入成功')}catch(error){alert('无法导入：文件格式不正确。')}};reader.readAsText(file);event.target.value=''});
       $('#exportCsvBtn').addEventListener('click',function(){
         const all=state.products.map(calculate),plan=buildPlan(all),rank={};plan.sorted.forEach(function(c,i){rank[c.p.id]=i+1});
         const headers=['排名','SKU','产品名称','类目','当前方案','优先级分档','AAI','产品点数','每点年毛利','年毛利潜力','有效提前天数','提前毛利潜力','空运成本','海运分摊成本','空运新增成本','成功情景净值','成功情景盈亏平衡点数','盈亏平衡提前天数','总体积m3','总实重kg','体积重kg','计费重kg','空运边界计费重kg','抛重倍数','测试数量','测试采购单价','测试采购总额'];
@@ -719,7 +775,7 @@
       function dateStamp(){const d=new Date();return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')}
 
       renderAll();
-      if(migratedLegacy){save();toast('旧版数据已保留，并升级为完整海运分摊口径')}
+      if(migratedLegacy){save();toast('旧版数据已保留，并升级为当前默认口径')}
     })();
   </script>
 </body>
