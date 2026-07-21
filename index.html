@@ -357,9 +357,9 @@
     (function(){
       'use strict';
 
-      const STORAGE_KEY='air-sea-aai-calculator-v6';
-      const LEGACY_STORAGE_KEYS=['air-sea-aai-calculator-v5','air-sea-aai-calculator-v4','air-sea-aai-calculator-v3','air-sea-aai-calculator-v2','air-sea-aai-calculator-v1'];
-      const STATE_VERSION=6;
+      const STORAGE_KEY='air-sea-aai-calculator-v7';
+      const LEGACY_STORAGE_KEYS=['air-sea-aai-calculator-v6','air-sea-aai-calculator-v5','air-sea-aai-calculator-v4','air-sea-aai-calculator-v3','air-sea-aai-calculator-v2','air-sea-aai-calculator-v1'];
+      const STATE_VERSION=7;
       const PRODUCT_POINT_ANNUAL_GP=120000;
       const DEFAULT_PRODUCT_POINTS=.1;
       const DAYS_PER_YEAR=365;
@@ -426,7 +426,7 @@
 
       function sampleProducts(){
         const a=blankProduct(1);Object.assign(a,{name:'轻小件高优先示例',category:'家居',packMode:'batch',batchVolume:.03,batchGross:5});
-        const b=blankProduct(2);Object.assign(b,{name:'中等重量中优先示例',category:'DIY',packMode:'batch',batchVolume:.1,batchGross:20});
+        const b=blankProduct(2);Object.assign(b,{name:'中等重量中优先示例',category:'DIY',packMode:'batch',batchVolume:.12,batchGross:20});
         const c=blankProduct(3);Object.assign(c,{name:'大体积抛重低优先示例',category:'花园',packMode:'batch',batchVolume:.3,batchGross:10});
         return [a,b,c]
       }
@@ -434,7 +434,9 @@
       function isLegacySampleProducts(products){
         if(!Array.isArray(products)||products.length!==3)return false;
         const names=products.map(function(p){return p&&p.name});
-        return names[0]==='轻小件高优先示例'&&names[1]==='中等重量边界示例'&&names[2]==='严重抛重低优先示例'
+        const oldSet=names[0]==='轻小件高优先示例'&&names[1]==='中等重量边界示例'&&names[2]==='严重抛重低优先示例';
+        const v6Set=names[0]==='轻小件高优先示例'&&names[1]==='中等重量中优先示例'&&names[2]==='大体积抛重低优先示例';
+        return oldSet||v6Set
       }
 
       let state={version:STATE_VERSION,globals:defaultGlobals(),products:sampleProducts()},migratedLegacy=false;
