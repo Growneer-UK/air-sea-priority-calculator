@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d3b36">
+  <meta name="description" content="新品测试空运与海运优先级计算器：计算计费重、空海运增量成本、预期提前价值和空运加速指数 AAI。">
+  <title>新品空运优先级计算器｜AAI</title>
+  <style>
+    :root{
+      --ink:#15211f;
+      --muted:#60706d;
+      --bg:#f4f6f3;
+      --paper:#fff;
+      --line:#dce3df;
+      --green:#0d5f50;
+      --green-2:#14826c;
+      --green-soft:#e9f5f1;
+      --navy:#173d4d;
+      --blue:#1d6f91;
+      --blue-soft:#eaf4f8;
+      --amber:#a76312;
+      --amber-soft:#fff4de;
+      --red:#a33a37;
+      --red-soft:#fcedeb;
+      --shadow:0 14px 40px rgba(27,52,45,.09);
+      --radius:18px;
+      --safe-bottom:env(safe-area-inset-bottom,0px);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;min-height:100vh;color:var(--ink);background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",Arial,sans-serif}
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    a{color:inherit}
+    .wrap{width:min(1480px,calc(100% - 32px));margin:0 auto}
+    .topbar{position:sticky;top:0;z-index:50;border-bottom:1px solid rgba(255,255,255,.11);background:rgba(10,52,46,.96);color:#fff;backdrop-filter:blur(16px)}
+    .topbar-inner{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .brand{display:flex;align-items:center;gap:11px;font-weight:900;letter-spacing:.01em}
+    .brand-mark{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:#fff;color:var(--green);font-size:13px;box-shadow:0 6px 16px rgba(0,0,0,.16)}
+    .top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+    .top-btn,.btn{min-height:42px;border:1px solid transparent;border-radius:11px;padding:9px 14px;font-weight:800;transition:.18s ease}
+    .top-btn{border-color:rgba(255,255,255,.24);background:rgba(255,255,255,.08);color:#fff}
+    .top-btn:hover{background:rgba(255,255,255,.16)}
+    .save-state{font-size:12px;color:#c6ded8;white-space:nowrap}
+    .hero{position:relative;overflow:hidden;padding:64px 0 50px;color:#fff;background:linear-gradient(125deg,#093d36 0%,#0d5f50 48%,#16495a 100%)}
+    .hero:before,.hero:after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.055)}
+    .hero:before{width:430px;height:430px;right:-120px;top:-250px}
+    .hero:after{width:260px;height:260px;left:42%;bottom:-210px}
+    .hero-grid{position:relative;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(340px,.75fr);gap:42px;align-items:center}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid rgba(255,255,255,.25);border-radius:999px;background:rgba(255,255,255,.08);font-size:12px;font-weight:850}
+    .hero h1{max-width:850px;margin:18px 0 15px;font-size:clamp(34px,5vw,62px);line-height:1.07;letter-spacing:-.035em}
+    .hero-copy{max-width:800px;margin:0;color:#dcece7;font-size:16px;line-height:1.85}
+    .hero-copy strong{color:#fff}
+    .formula-card{padding:24px;border:1px solid rgba(255,255,255,.2);border-radius:20px;background:rgba(4,31,28,.28);box-shadow:0 18px 46px rgba(4,28,25,.22);backdrop-filter:blur(12px)}
+    .formula-card .label{color:#bfe1d8;font-size:12px;font-weight:850}
+    .formula-main{margin:12px 0 9px;font-size:22px;font-weight:950;line-height:1.35}
+    .formula-line{height:1px;margin:13px 0;background:rgba(255,255,255,.26)}
+    .formula-sub{margin:0;color:#d4e6e1;font-size:13px;line-height:1.7}
+    .formula-badges{display:flex;gap:7px;flex-wrap:wrap;margin-top:16px}
+    .formula-badges span{padding:6px 8px;border-radius:7px;background:rgba(255,255,255,.09);font-size:11px;font-weight:800}
+    main{padding:26px 0 100px}
+    .notice{display:flex;gap:14px;align-items:flex-start;margin-bottom:18px;padding:17px 19px;border:1px solid #c9ded7;border-radius:14px;background:var(--green-soft);color:#244c43;line-height:1.7}
+    .notice-icon{flex:0 0 28px;height:28px;display:grid;place-items:center;border-radius:50%;background:var(--green);color:#fff;font-weight:900}
+    .notice b{color:#0b4f43}
+    .section{margin-top:22px}
+    .section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;margin:0 2px 12px}
+    .section-head h2{margin:0;font-size:25px;letter-spacing:-.015em}
+    .section-head p{margin:5px 0 0;color:var(--muted);font-size:13px;line-height:1.65}
+    .panel{border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);box-shadow:var(--shadow)}
+    .settings-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    .setting-card{padding:20px;border:1px solid var(--line);border-radius:16px;background:var(--paper)}
+    .setting-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}
+    .setting-title h3{margin:0;font-size:17px}
+    .setting-title span{color:var(--muted);font-size:11px;font-weight:800}
+    .field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .field{min-width:0}
+    .field.full{grid-column:1/-1}
+    .field label{display:flex;align-items:center;gap:5px;margin-bottom:6px;color:#40504d;font-size:12px;font-weight:800}
+    .field small{display:block;margin-top:5px;color:var(--muted);font-size:10.5px;line-height:1.45}
+    .input-wrap{position:relative}
+    .input-wrap input,.input-wrap select,.field>input,.field>select,.field>textarea{width:100%;min-height:43px;border:1px solid #cfd9d4;border-radius:10px;background:#fff;color:var(--ink);padding:9px 11px;outline:none}
+    .input-wrap input{padding-right:45px}
+    .unit{position:absolute;right:11px;top:50%;transform:translateY(-50%);color:#75817f;font-size:11px;pointer-events:none}
+    input:focus,select:focus,textarea:focus{border-color:var(--green-2)!important;box-shadow:0 0 0 3px rgba(20,130,108,.12)}
+    input[readonly]{background:#f1f4f2;color:#56635f}
+    .help{width:17px;height:17px;display:inline-grid;place-items:center;border-radius:50%;background:#e6ece9;color:#5d6b67;font-size:10px;cursor:help}
+    .btn{background:#fff;color:var(--green);border-color:#bdd0ca}
+    .btn:hover{transform:translateY(-1px);border-color:var(--green)}
+    .btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+    .btn.dark{background:var(--navy);border-color:var(--navy);color:#fff}
+    .btn.danger{color:var(--red);border-color:#e0bbb8}
+    .btn.small{min-height:37px;padding:7px 11px;border-radius:9px;font-size:12px}
+    .product-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:15px 17px;border-bottom:1px solid var(--line)}
+    .product-toolbar .copy{color:var(--muted);font-size:12px;line-height:1.6}
+    .toolbar-buttons{display:flex;gap:8px;flex-wrap:wrap}
+    .products{padding:14px}
+    .product-card{margin-bottom:12px;border:1px solid var(--line);border-radius:15px;background:#fff;overflow:hidden}
+    .product-card:last-child{margin-bottom:0}
+    .product-card[open]{box-shadow:0 10px 30px rgba(30,52,46,.07)}
+    .product-summary{list-style:none;display:grid;grid-template-columns:minmax(220px,1fr) auto auto;gap:16px;align-items:center;padding:15px 17px;cursor:pointer;background:#fbfcfb}
+    .product-summary::-webkit-details-marker{display:none}
+    .product-name-line{display:flex;gap:11px;align-items:center;min-width:0}
+    .rank-dot{flex:0 0 34px;height:34px;display:grid;place-items:center;border-radius:10px;background:#e9efec;color:var(--green);font-size:12px;font-weight:950}
+    .product-title{min-width:0}
+    .product-title b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:15px}
+    .product-title span{display:block;margin-top:3px;color:var(--muted);font-size:11px}
+    .summary-metric{text-align:right}
+    .summary-metric b{display:block;font-size:21px;color:var(--navy)}
+    .summary-metric span{display:block;margin-top:2px;color:var(--muted);font-size:10px}
+    .status{display:inline-flex;align-items:center;justify-content:center;min-width:94px;padding:7px 9px;border-radius:999px;font-size:11px;font-weight:900;white-space:nowrap}
+    .status.strong,.status.dominant{background:var(--green-soft);color:var(--green)}
+    .status.candidate{background:var(--blue-soft);color:var(--blue)}
+    .status.sea{background:#eef1ef;color:#596762}
+    .status.review{background:var(--amber-soft);color:var(--amber)}
+    .status.blocked{background:var(--red-soft);color:var(--red)}
+    .product-body{padding:18px;border-top:1px solid var(--line)}
+    .product-groups{display:grid;grid-template-columns:1fr 1.15fr 1.15fr;gap:14px}
+    .product-group{padding:15px;border:1px solid #e0e6e2;border-radius:13px;background:#fcfdfc}
+    .product-group h4{margin:0 0 12px;font-size:14px;color:var(--navy)}
+    .mini-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .mini-grid .field label{font-size:11px}
+    .computed{margin-top:11px;padding:11px 12px;border-radius:10px;background:#edf3f0;color:#43534f;font-size:11px;line-height:1.7}
+    .computed b{color:#164d42}
+    .product-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px;padding-top:14px;border-top:1px dashed #d5ddd9}
+    .product-actions .left,.product-actions .right{display:flex;gap:8px;flex-wrap:wrap}
+    .result-dashboard{padding:18px}
+    .summary-cards{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+    .summary-card{padding:15px;border:1px solid var(--line);border-radius:13px;background:#fff}
+    .summary-card span{display:block;color:var(--muted);font-size:11px;line-height:1.4}
+    .summary-card b{display:block;margin-top:7px;color:var(--navy);font-size:22px;line-height:1.2}
+    .summary-card.emphasis{border-color:#b8d8cf;background:var(--green-soft)}
+    .summary-card.emphasis b{color:var(--green)}
+    .balance-panel{display:grid;grid-template-columns:minmax(320px,.8fr) minmax(0,1.2fr);gap:14px;margin-top:14px}
+    .balance-controls,.chart-card{padding:17px;border:1px solid var(--line);border-radius:14px;background:#fbfcfb}
+    .balance-controls h3,.chart-card h3{margin:0 0 5px;font-size:16px}
+    .balance-controls>p,.chart-card>p{margin:0 0 13px;color:var(--muted);font-size:11px;line-height:1.55}
+    .balance-output{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+    .balance-output div{padding:10px;border-radius:9px;background:#edf2ef;color:#596762;font-size:10px}
+    .balance-output b{display:block;margin-top:3px;color:var(--navy);font-size:15px}
+    .chart-list{display:grid;gap:9px}
+    .chart-row{display:grid;grid-template-columns:minmax(90px,150px) minmax(100px,1fr) 68px;gap:9px;align-items:center}
+    .chart-name{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#41504c;font-size:11px;font-weight:750}
+    .bar-track{height:14px;overflow:hidden;border-radius:999px;background:#e9eeeb}
+    .bar{height:100%;min-width:3px;border-radius:999px;background:linear-gradient(90deg,var(--green-2),#65b49f)}
+    .bar.candidate{background:linear-gradient(90deg,#27799b,#73afc4)}
+    .bar.sea{background:linear-gradient(90deg,#8a9893,#b6c0bc)}
+    .chart-value{text-align:right;color:var(--navy);font-size:12px;font-weight:900}
+    .results-table-wrap{margin-top:14px;overflow:auto;border:1px solid var(--line);border-radius:14px}
+    table{width:100%;border-collapse:collapse;background:#fff;font-size:11.5px}
+    th{position:sticky;top:0;z-index:2;padding:11px 10px;border-bottom:1px solid var(--line);background:#f0f4f2;color:#50605c;text-align:right;white-space:nowrap;font-size:10px}
+    th:nth-child(2),td:nth-child(2){text-align:left}
+    td{padding:11px 10px;border-bottom:1px solid #edf0ee;text-align:right;white-space:nowrap;vertical-align:middle}
+    tbody tr:last-child td{border-bottom:0}
+    tbody tr.selected{background:#f2faf7}
+    .name-cell b{display:block;max-width:210px;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+    .name-cell span{display:block;margin-top:2px;color:var(--muted);font-size:10px}
+    .aai{font-size:16px;font-weight:950;color:var(--navy)}
+    .plan-air{color:var(--green);font-weight:900}.plan-sea{color:#687570;font-weight:850}
+    .mobile-results{display:none}
+    .mobile-result{padding:14px;border:1px solid var(--line);border-radius:13px;background:#fff}
+    .mobile-result-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+    .mobile-result h4{margin:0;font-size:14px}.mobile-result .sku{margin-top:3px;color:var(--muted);font-size:10px}
+    .mobile-result-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:11px}
+    .mobile-result-grid div{padding:9px;border-radius:9px;background:#f3f6f4;color:var(--muted);font-size:10px}
+    .mobile-result-grid b{display:block;margin-top:3px;color:var(--ink);font-size:13px}
+    .explanation{margin-top:12px;padding:11px;border-left:3px solid var(--green-2);background:var(--green-soft);color:#39564f;font-size:10.5px;line-height:1.65}
+    .empty{padding:44px 20px;text-align:center;color:var(--muted)}
+    .empty b{display:block;margin-bottom:7px;color:var(--navy);font-size:18px}
+    .method-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    details.method{border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}
+    details.method summary{list-style:none;padding:16px 18px;font-weight:900;cursor:pointer}
+    details.method summary::-webkit-details-marker{display:none}
+    .method-copy{padding:0 18px 18px;color:#52615d;font-size:12px;line-height:1.8}
+    .method-copy strong{color:#173e35}
+    .equation{margin:11px 0;padding:12px;border-radius:10px;background:#eef3f0;color:#173e35;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;line-height:1.75;overflow:auto}
+    .method-copy ul{margin:8px 0;padding-left:19px}
+    .method-copy li{margin:5px 0}
+    .sources{margin-top:14px;color:#71807c;font-size:10.5px;line-height:1.7}
+    .sources a{color:var(--blue);font-weight:750}
+    .footer{padding:25px 0 calc(20px + var(--safe-bottom));color:#788580;text-align:center;font-size:11px;line-height:1.7}
+    .privacy{display:inline-flex;align-items:center;gap:6px;margin-top:5px;padding:5px 8px;border-radius:999px;background:#e7ece9;color:#4f5e59;font-weight:750}
+    .toast{position:fixed;z-index:100;left:50%;bottom:calc(24px + var(--safe-bottom));transform:translate(-50%,20px);max-width:min(520px,calc(100% - 28px));padding:11px 15px;border-radius:10px;background:#173e35;color:#fff;box-shadow:0 12px 30px rgba(0,0,0,.22);font-size:12px;opacity:0;pointer-events:none;transition:.2s ease}
+    .toast.show{opacity:1;transform:translate(-50%,0)}
+    .sticky-mobile{display:none}
+    .invalid-note{color:var(--red);font-size:10px;font-weight:750}
+    .global-errors{grid-column:1/-1;padding:13px 16px;border:1px solid #e5bbb7;border-radius:12px;background:var(--red-soft);color:var(--red);font-size:11px;font-weight:750;line-height:1.7}
+    @media(max-width:1100px){
+      .hero-grid{grid-template-columns:1fr}.formula-card{max-width:760px}
+      .settings-grid{grid-template-columns:1fr 1fr}.setting-card:last-child{grid-column:1/-1}
+      .product-groups{grid-template-columns:1fr 1fr}.product-group:last-child{grid-column:1/-1}
+      .summary-cards{grid-template-columns:repeat(3,minmax(0,1fr))}
+    }
+    @media(max-width:760px){
+      .wrap{width:min(100% - 20px,1480px)}
+      .topbar-inner{min-height:58px}.brand span:last-child{font-size:13px}.save-state{display:none}
+      .top-actions .top-btn:not(.mobile-keep){display:none}
+      .hero{padding:39px 0 32px}.hero-grid{gap:22px}.hero h1{font-size:36px}.hero-copy{font-size:13.5px}.formula-card{padding:18px}.formula-main{font-size:18px}
+      main{padding-top:15px}.notice{padding:14px;font-size:12px}.notice-icon{flex-basis:24px;height:24px}
+      .section-head{align-items:flex-start;flex-direction:column}.section-head h2{font-size:21px}
+      .settings-grid,.product-groups,.method-grid,.balance-panel{grid-template-columns:1fr}.setting-card:last-child,.product-group:last-child{grid-column:auto}
+      .field-grid,.mini-grid{grid-template-columns:1fr 1fr}
+      .product-toolbar{align-items:flex-start}.product-toolbar .copy{flex:1 0 100%}
+      .products{padding:9px}.product-summary{grid-template-columns:1fr auto;gap:9px;padding:13px}.product-summary .status{grid-column:1/-1;justify-self:start;margin-left:45px}.summary-metric b{font-size:18px}
+      .product-body{padding:11px}.product-group{padding:12px}.product-actions{align-items:flex-start;flex-direction:column}
+      .summary-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.summary-card b{font-size:19px}
+      .chart-row{grid-template-columns:90px minmax(80px,1fr) 52px}
+      .results-table-wrap{display:none}.mobile-results{display:grid;gap:9px;margin-top:13px}
+      .result-dashboard{padding:10px}.balance-panel{gap:10px}
+      .method-grid{gap:9px}
+      .sticky-mobile{position:fixed;left:10px;right:10px;bottom:calc(9px + var(--safe-bottom));z-index:45;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 11px;border:1px solid rgba(255,255,255,.25);border-radius:14px;background:rgba(13,63,54,.96);color:#fff;box-shadow:0 14px 36px rgba(0,0,0,.22);backdrop-filter:blur(14px)}
+      .sticky-mobile span{font-size:10px;color:#cde1dc}.sticky-mobile b{display:block;margin-top:2px;font-size:14px}.sticky-mobile a{min-height:39px;display:grid;place-items:center;padding:8px 12px;border-radius:9px;background:#fff;color:var(--green);text-decoration:none;font-size:12px;font-weight:900}
+    }
+    @media(max-width:430px){
+      .field-grid,.mini-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.summary-cards{grid-template-columns:1fr 1fr}.summary-card{padding:12px}.topbar .brand-mark{display:none}
+    }
+    @media print{
+      .topbar,.top-actions,.product-toolbar,.product-actions,.sticky-mobile,.toast,.btn{display:none!important}
+      body{background:#fff}.hero{padding:25px 0;background:#174b43!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      main{padding-bottom:0}.panel,.setting-card,.product-card{box-shadow:none}.product-card:not([open]) .product-body{display:block}.results-table-wrap{display:block;overflow:visible}.mobile-results{display:none}.method-grid{grid-template-columns:1fr 1fr}
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <div class="brand"><span class="brand-mark">AAI</span><span>新品空运优先级计算器</span></div>
+      <div class="top-actions">
+        <span class="save-state" id="saveState">已自动保存到本机</span>
+        <button class="top-btn" type="button" id="importBtn">导入数据</button>
+        <button class="top-btn" type="button" id="exportDataBtn">导出数据</button>
+        <button class="top-btn mobile-keep" type="button" id="exportCsvBtn">导出结果</button>
+        <button class="top-btn mobile-keep" type="button" onclick="window.print()">打印</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="eyebrow">新品首批测款 · 空运 / 海运决策</div>
+        <h1>把空运费花在最值得提前验证的产品上</h1>
+        <p class="hero-copy">本工具衡量的不是首批测试能否回本，而是：<strong>每多花 1 元空运增量成本，预计能换回多少元提前验证价值</strong>。测试采购价只用于测款预算，不进入空运优先级。</p>
+      </div>
+      <div class="formula-card">
+        <div class="label">核心指标 · 空运加速指数</div>
+        <div class="formula-main">AAI = 预期提前价值 ÷ 空海运增量成本</div>
+        <div class="formula-line"></div>
+        <p class="formula-sub">预期提前价值 = 成功概率 × 成功后日销量 × 正常大货单件贡献利润 × 有效提前天数 + 可验证的额外期权价值</p>
+        <div class="formula-badges"><span>AAI ≥ 2 · 强优先</span><span>1–2 · 候选</span><span>&lt; 1 · 海运</span></div>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <div class="wrap">
+      <div class="notice">
+        <div class="notice-icon">i</div>
+        <div><b>填写原则：</b>包装必须使用最终外箱尺寸和毛重；商业测算必须使用正常大货价格。若日销量采用“全体测款平均值，失败款记为0”，请在决策参数中切换口径，系统将不再重复乘成功率。</div>
+      </div>
+
+      <section class="section" id="settings">
+        <div class="section-head"><div><h2>1. 全局参数</h2><p>默认值可以直接使用，正式执行前请替换为货代账单和公司最近6–12个月整柜实装数据。</p></div></div>
+        <div class="settings-grid" id="globalSettings"></div>
+      </section>
+
+      <section class="section" id="productsSection">
+        <div class="section-head"><div><h2>2. 测款产品</h2><p>每个产品录入测试批包装、正常大货经济数据和有效提前天数。</p></div></div>
+        <div class="panel">
+          <div class="product-toolbar">
+            <div class="copy">测试采购价仅用于显示首批采购预算，不参与 AAI 计算。</div>
+            <div class="toolbar-buttons">
+              <button class="btn small" type="button" id="sampleBtn">加载示例</button>
+              <button class="btn small danger" type="button" id="clearBtn">清空</button>
+              <button class="btn small primary" type="button" id="addProductBtn">＋ 添加产品</button>
+            </div>
+          </div>
+          <div class="products" id="products"></div>
+        </div>
+      </section>
+
+      <section class="section" id="resultsSection">
+        <div class="section-head"><div><h2>3. 排名与运输方案</h2><p>主排序按 AAI 从高到低；在预算约束下，系统给出当前建议空运组合。</p></div></div>
+        <div class="panel result-dashboard" id="results"></div>
+      </section>
+
+      <section class="section" id="method">
+        <div class="section-head"><div><h2>计算口径与填写说明</h2><p>以下规则决定结果是否可信，建议采购、物流和产品开发共同确认。</p></div></div>
+        <div class="method-grid">
+          <details class="method" open>
+            <summary>为什么测试采购价不进入排序？</summary>
+            <div class="method-copy">同一批测试品无论走空运还是海运，都需要支付测试采购款，因此比较运输方式时会相互抵消。测试价100元、未来大货价50元时，测试价只进入首批预算；未来贡献利润必须按50元附近的正常大货成本计算。<div class="equation">空运方案价值 − 海运方案价值<br>= 提前获得结论的价值 −（空运成本 − 海运成本）</div></div>
+          </details>
+          <details class="method" open>
+            <summary>有效提前天数怎么填？</summary>
+            <div class="method-copy">不是简单的“海运天数减空运天数”，而是两种方案取得有效测款结论、并真正影响补货或销售窗口的日期差。<ul><li>若空运早到20天，但仍只能赶上同一排产节点，填写0天。</li><li>若海运会错过旺季、空运能赶上，应填写真正不可追回的利润等价天数。</li><li>现有7–14天观察期、最晚28天判断期也要放进两条时间线。</li></ul>只有在能审计时，才填写额外期权价值，例如空运结果能避免“未测先下大货”的预期损失；否则保持为0。</div>
+          </details>
+          <details class="method">
+            <summary>空运抛重如何计算？</summary>
+            <div class="method-copy">系统按每个外箱分别取实重和体积重中的较大值，再按0.5kg或1kg进位。若货代最终确认了计费重，可以直接覆盖系统计算值。<div class="equation">单箱体积重(kg) = 长(cm) × 宽(cm) × 高(cm) ÷ 抛重除数<br>总计费重 = 箱数 × 向上进位(MAX(单箱毛重, 单箱体积重))</div></div>
+          </details>
+          <details class="method">
+            <summary>整柜海运为什么是“机会成本”？</summary>
+            <div class="method-copy">40HQ是阶梯成本。默认计算用于单品排序，不等同于最终海运发票分摊。柜子长期满载时使用占柜成本；已有确定空位时可选择“柜内有空位，干线边际成本为0”；如果一组新品导致多开整柜，应在排序后做一次装柜组合校正。</div>
+          </details>
+          <details class="method">
+            <summary>成功率和日销量从哪里来？</summary>
+            <div class="method-copy">建议按“平台 × 类目 × 售价带 × 选品来源 × BU”的历史同类新品自动给出。成功率不要由开发人员自由填写；成功后日销量建议用成功款30/60天中位数。若使用全体测款平均日销量且失败款按0计，选择“无条件日销量”口径，避免重复乘成功率。</div>
+          </details>
+          <details class="method">
+            <summary>阈值与最终选择</summary>
+            <div class="method-copy"><strong>AAI=1</strong>是数学平衡点；<strong>AAI=2</strong>相当于给预测误差留出约50%的缓冲。预算受限时按AAI排序；若限制的是SKU数量，应同时观察“预期净价值”。正式阈值最好用过去6–12个月新品回测后确定。</div>
+          </details>
+        </div>
+        <div class="sources">参考规则：空运体积重应按承运商合同执行，FedEx公开说明采用实重与体积重较高者；40HQ名义参数可参考承运商规格，但有效装载量应采用公司历史实装值。<a href="https://www.fedex.com/en-ca/resources-tools/dimensional-weight.html" target="_blank" rel="noopener">FedEx体积重说明</a> · <a href="https://www.maersk.com/~/media_sc9/maersk/local-information/files/africa/south-africa/important-information/container-type-and-sizes/dry-equipment-specifications-updated.pdf" target="_blank" rel="noopener">Maersk集装箱规格</a></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer"><div class="wrap">新品空运优先级计算器 · AAI 决策模型<br><span class="privacy">所有录入数据仅保存在当前浏览器，不上传服务器</span></div></footer>
+  <div class="sticky-mobile"><div><span>当前方案</span><b id="mobilePlan">0 个空运</b></div><a href="#resultsSection">查看结果</a></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <input id="importFile" type="file" accept="application/json,.json" hidden>
+
+  <script>
+    (function(){
+      'use strict';
+
+      const STORAGE_KEY='air-sea-aai-calculator-v1';
+      const STATE_VERSION=1;
+      const $=function(sel,root){return (root||document).querySelector(sel)};
+      const $$=function(sel,root){return Array.from((root||document).querySelectorAll(sel))};
+
+      function uid(){return 'p_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8)}
+      function n(value,fallback){const x=Number(value);return Number.isFinite(x)?x:(fallback===undefined?0:fallback)}
+      function hasNumber(value){return value!==''&&value!==null&&value!==undefined&&Number.isFinite(Number(value))}
+      function roundMoney(value){return Math.round((value+Number.EPSILON)*100)/100}
+      function roundUp(value,step){if(!step||step<=0)return value;return Math.ceil((value-1e-9)/step)*step}
+      function esc(value){return String(value===undefined||value===null?'':value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+      function fmt(value,digits){if(!Number.isFinite(value))return '—';return new Intl.NumberFormat('zh-CN',{minimumFractionDigits:digits||0,maximumFractionDigits:digits===undefined?2:digits}).format(value)}
+      function money(value){return Number.isFinite(value)?'¥'+fmt(value,2):'—'}
+      function pct(value){return Number.isFinite(value)?fmt(value*100,1)+'%':'—'}
+      function aaiText(value){if(value===Infinity)return '∞';return Number.isFinite(value)?fmt(value,2):'—'}
+      function valueAttr(value){return esc(value===undefined||value===null?'':value)}
+      function toast(message){const el=$('#toast');el.textContent=message;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(function(){el.classList.remove('show')},2200)}
+      function download(name,content,type){const blob=new Blob([content],{type:type||'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},500)}
+
+      function defaultGlobals(){return {
+        airRate:40, divisor:6000, rounding:0.5, airFixed:0,
+        seaUsd:4000, fx:7.2, volumeCapacity:68, weightCapacity:26000, seaFixed:0, seaMode:'max',
+        defaultDays:35, strongThreshold:2, candidateThreshold:1, demandBasis:'conditional',
+        balanceMode:'budget', budget:'', topN:3, selectionThreshold:1
+      }}
+
+      function blankProduct(index){return {
+        id:uid(),sku:'SKU-'+String(index||1).padStart(3,'0'),name:'',category:'',transportRule:'auto',
+        qty:10,testUnitPrice:100,packMode:'carton',cartons:1,length:60,width:50,height:40,grossPerCarton:8,batchVolume:0.12,batchGross:8,confirmedChargeable:'',manualSeaCost:'',
+        successRate:25,dailySales:8,marginMode:'breakdown',manualMargin:30,sellingExVat:100,bulkPrice:50,otherVariable:20,days:'',optionValue:0,notes:''
+      }}
+
+      function normalizeGlobals(raw){
+        const g=Object.assign(defaultGlobals(),raw||{});
+        if(!['max','volume','weight','zero','manual'].includes(g.seaMode))g.seaMode='max';
+        if(!['conditional','unconditional'].includes(g.demandBasis))g.demandBasis='conditional';
+        if(!['budget','topN'].includes(g.balanceMode))g.balanceMode='budget';
+        return g
+      }
+      function normalizeProduct(raw,index){
+        const p=Object.assign(blankProduct(index+1),raw||{},{id:uid()});
+        if(!['auto','required','blocked'].includes(p.transportRule))p.transportRule='auto';
+        if(!['carton','batch'].includes(p.packMode))p.packMode='carton';
+        if(!['breakdown','manual'].includes(p.marginMode))p.marginMode='breakdown';
+        return p
+      }
+
+      function sampleProducts(){
+        const a=blankProduct(1);Object.assign(a,{name:'标准轻抛高潜力',category:'家居',length:60,width:50,height:40,grossPerCarton:8,successRate:25,dailySales:8,sellingExVat:100,bulkPrice:50,otherVariable:20});
+        const b=blankProduct(2);Object.assign(b,{name:'高密度稳定款',category:'DIY',length:50,width:40,height:20,grossPerCarton:20,successRate:22,dailySales:6,sellingExVat:95,bulkPrice:48,otherVariable:19});
+        const c=blankProduct(3);Object.assign(c,{name:'严重抛重常青品',category:'花园',length:100,width:80,height:60,grossPerCarton:5,successRate:25,dailySales:8,sellingExVat:100,bulkPrice:50,otherVariable:20,days:14});
+        return [a,b,c]
+      }
+
+      let state={version:STATE_VERSION,globals:defaultGlobals(),products:sampleProducts()};
+      try{
+        const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');
+        if(saved&&saved.version===STATE_VERSION&&saved.globals&&Array.isArray(saved.products)){
+          state={version:STATE_VERSION,globals:normalizeGlobals(saved.globals),products:saved.products.map(normalizeProduct)};
+        }
+      }catch(error){}
+
+      function save(){
+        try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));$('#saveState').textContent='已自动保存到本机'}catch(error){$('#saveState').textContent='本机保存失败'}
+      }
+
+      function globalCard(){
+        const g=state.globals;
+        return '<div class="setting-card"><div class="setting-title"><h3>空运参数</h3><span>按测试批计算</span></div><div class="field-grid">'+
+          fieldGlobal('airRate','空运单价','元/kg',g.airRate,'number','0.01','必须使用同一费用口径')+
+          fieldGlobal('divisor','抛重除数','',g.divisor,'number','1','按货代合同，可填5000/6000')+
+          fieldGlobal('rounding','计费重进位','kg',g.rounding,'number','0.1','通常0.5kg或1kg')+
+          fieldGlobal('airFixed','每SKU空运其他费用','元',g.airFixed,'number','0.01','只填写空运独有费用')+
+        '</div></div>'+
+        '<div class="setting-card"><div class="setting-title"><h3>40HQ 海运参数</h3><span>占柜机会成本</span></div><div class="field-grid">'+
+          fieldGlobal('seaUsd','整柜费用','美元',g.seaUsd,'number','1','相同门到门口径')+
+          fieldGlobal('fx','美元汇率','元',g.fx,'number','0.01','可随结算口径调整')+
+          fieldGlobal('volumeCapacity','有效装载体积','m³',g.volumeCapacity,'number','0.1','用历史实装，不用理论76m³')+
+          fieldGlobal('weightCapacity','有效装载重量','kg',g.weightCapacity,'number','1','用历史实装限制')+
+          fieldGlobal('seaFixed','每SKU海运其他费用','元',g.seaFixed,'number','0.01','只填写海运独有费用')+
+          '<div class="field"><label>海运成本模式</label><select data-global="seaMode"><option value="max"'+sel(g.seaMode,'max')+'>体积/重量取较大</option><option value="volume"'+sel(g.seaMode,'volume')+'>按体积占柜</option><option value="weight"'+sel(g.seaMode,'weight')+'>按重量占柜</option><option value="zero"'+sel(g.seaMode,'zero')+'>柜内有空位，干线为0</option><option value="manual"'+sel(g.seaMode,'manual')+'>每个SKU手工填写</option></select><small>用于排序，不等于发票分摊</small></div>'+
+        '</div></div>'+
+        '<div class="setting-card"><div class="setting-title"><h3>决策与平衡点</h3><span>阈值可回测调整</span></div><div class="field-grid">'+
+          fieldGlobal('defaultDays','默认有效提前天数','天',g.defaultDays,'number','1','产品可单独覆盖')+
+          fieldGlobal('strongThreshold','强优先阈值','AAI',g.strongThreshold,'number','0.1','初始建议2.0')+
+          fieldGlobal('candidateThreshold','候选阈值','AAI',g.candidateThreshold,'number','0.1','数学平衡点通常1.0')+
+          '<div class="field"><label>日销量数据口径 <span class="help" title="成功款日销量需要乘成功率；全体测款平均日销量已含失败款，不应重复乘成功率">?</span></label><select data-global="demandBasis"><option value="conditional"'+sel(g.demandBasis,'conditional')+'>成功款日销量（乘成功率）</option><option value="unconditional"'+sel(g.demandBasis,'unconditional')+'>全体测款平均（不再乘成功率）</option></select><small>这是最重要的防重复计算设置</small></div>'+
+          '<div class="field"><label>方案选择方式</label><select data-global="balanceMode"><option value="budget"'+sel(g.balanceMode,'budget')+'>按空运增量预算</option><option value="topN"'+sel(g.balanceMode,'topN')+'>按排名最多选N个</option></select></div>'+
+          (g.balanceMode==='budget'?fieldGlobal('budget','空运增量预算','元',g.budget,'number','1','留空表示不限制'):fieldGlobal('topN','最多选择N个','个',g.topN,'number','1','仅纳入达到最低AAI的产品'))+
+          fieldGlobal('selectionThreshold','最低入选AAI','',g.selectionThreshold,'number','0.1','通常不低于1.0')+
+        '</div></div>'
+      }
+
+      function fieldGlobal(key,label,unit,value,type,step,help){
+        const limits={airRate:' min="0.01"',divisor:' min="1"',rounding:' min="0.01"',airFixed:' min="0"',seaUsd:' min="0"',fx:' min="0.0001"',volumeCapacity:' min="0.01"',weightCapacity:' min="0.01"',seaFixed:' min="0"',defaultDays:' min="0"',strongThreshold:' min="0"',candidateThreshold:' min="0"',budget:' min="0"',topN:' min="1"',selectionThreshold:' min="0"'};
+        return '<div class="field"><label>'+esc(label)+'</label><div class="input-wrap"><input data-global="'+key+'" type="'+(type||'number')+'" step="'+(step||'any')+'"'+(limits[key]||'')+' inputmode="decimal" value="'+valueAttr(value)+'">'+(unit?'<span class="unit">'+esc(unit)+'</span>':'')+'</div>'+(help?'<small>'+esc(help)+'</small>':'')+'</div>'
+      }
+      function sel(a,b){return String(a)===String(b)?' selected':''}
+      function chk(v){return v?' checked':''}
+
+      function renderGlobals(){$('#globalSettings').innerHTML=globalCard()+'<div class="global-errors" id="globalErrors" hidden></div>';updateGlobalErrors()}
+
+      function productCard(p,index){
+        const c=calculate(p);
+        const days=p.days===''?state.globals.defaultDays:p.days;
+        const cartonFields='<div class="field"><label>外箱数</label><input data-field="cartons" type="number" min="1" step="1" inputmode="numeric" value="'+valueAttr(p.cartons)+'"></div>'+field('length','单箱长','cm',p.length)+field('width','单箱宽','cm',p.width)+field('height','单箱高','cm',p.height)+field('grossPerCarton','单箱毛重','kg',p.grossPerCarton);
+        const batchFields=field('batchVolume','整批总体积','m³',p.batchVolume)+field('batchGross','整批总实重','kg',p.batchGross);
+        const breakdown=p.marginMode==='breakdown'?(field('sellingExVat','不含VAT售价','元/件',p.sellingExVat)+field('bulkPrice','预计大货采购价','元/件',p.bulkPrice)+field('otherVariable','其他单件变动成本','元/件',p.otherVariable)):(field('manualMargin','单件贡献利润','元/件',p.manualMargin));
+        return '<details class="product-card" data-id="'+p.id+'" open><summary class="product-summary"><div class="product-name-line"><span class="rank-dot" id="rank-'+p.id+'">'+(index+1)+'</span><div class="product-title"><b id="title-'+p.id+'">'+esc(p.name||'未命名产品')+'</b><span id="meta-'+p.id+'">'+esc(p.sku||'未填SKU')+' · 测试 '+fmt(n(p.qty),0)+' 件</span></div></div><div class="summary-metric"><b id="aai-'+p.id+'">'+aaiText(c.valid?c.aai:NaN)+'</b><span>空运加速指数</span></div><span id="status-'+p.id+'" class="status '+c.statusClass+'">'+esc(c.recommendation)+'</span></summary><div class="product-body"><div class="product-groups">'+
+          '<div class="product-group"><h4>基本与测试采购</h4><div class="mini-grid">'+
+            '<div class="field"><label>SKU编号</label><input data-field="sku" type="text" value="'+valueAttr(p.sku)+'"></div><div class="field"><label>产品名称</label><input data-field="name" type="text" value="'+valueAttr(p.name)+'" placeholder="必填"></div><div class="field"><label>类目</label><input data-field="category" type="text" value="'+valueAttr(p.category)+'" placeholder="可选"></div><div class="field"><label>运输规则</label><select data-field="transportRule"><option value="auto"'+sel(p.transportRule,'auto')+'>自动判断</option><option value="required"'+sel(p.transportRule,'required')+'>必须空运</option><option value="blocked"'+sel(p.transportRule,'blocked')+'>禁止空运</option></select></div>'+field('qty','测试数量','件',p.qty,'1')+field('testUnitPrice','测试采购单价','元/件',p.testUnitPrice)+
+          '</div><div class="computed" id="test-'+p.id+'">测试采购总额：<b>'+money(c.testPurchase)+'</b><br>该金额仅用于首批预算，不参与AAI排序。</div></div>'+
+          '<div class="product-group"><h4>最终外箱与运输</h4><div class="mini-grid"><div class="field full"><label>包装录入模式</label><select data-field="packMode"><option value="carton"'+sel(p.packMode,'carton')+'>按相同规格外箱</option><option value="batch"'+sel(p.packMode,'batch')+'>按整批总体积/实重</option></select></div>'+(p.packMode==='carton'?cartonFields:batchFields)+field('confirmedChargeable','货代确认计费重','kg（可空）',p.confirmedChargeable)+field('manualSeaCost','手工海运成本','元（按需）',p.manualSeaCost)+'</div><div class="computed" id="shipping-'+p.id+'">总体积 <b>'+fmt(c.volume,4)+'m³</b> · 总实重 <b>'+fmt(c.gross,2)+'kg</b><br>体积重 <b>'+fmt(c.volumeWeight,2)+'kg</b> · 计费重 <b>'+fmt(c.chargeable,2)+'kg</b> · '+esc(c.weightBasis)+'<br>空运 <b>'+money(c.air)+'</b> · 海运 <b>'+money(c.sea)+'</b> · 海运口径：'+esc(c.seaBasis)+'</div></div>'+
+          '<div class="product-group"><h4>正常大货与时间价值</h4><div class="mini-grid">'+
+            field('successRate','历史同类成功率','%',p.successRate)+field('dailySales',state.globals.demandBasis==='conditional'?'成功后预计日销量':'全体测款平均日销量','件/天',p.dailySales)+
+            '<div class="field full"><label>贡献利润录入</label><select data-field="marginMode"><option value="breakdown"'+sel(p.marginMode,'breakdown')+'>用售价和成本计算</option><option value="manual"'+sel(p.marginMode,'manual')+'>直接输入单件贡献利润</option></select></div>'+breakdown+
+            field('days','有效提前天数','天；空则继承'+state.globals.defaultDays,p.days)+field('optionValue','可验证的额外期权价值','元；默认0',p.optionValue)+
+          '</div><div class="computed" id="business-'+p.id+'">正常大货单件贡献：<b>'+money(c.margin)+'</b><br>有效提前天数：<b>'+fmt(n(days),1)+'天</b> · 预期提前价值：<b>'+money(c.expectedValue)+'</b><br>盈亏平衡成功率：<b>'+(c.breakEvenProb===null?'—':pct(c.breakEvenProb))+'</b> · 盈亏平衡提前天数：<b>'+(c.breakEvenDays===null?'—':fmt(c.breakEvenDays,1)+'天')+'</b></div></div>'+
+        '</div><div class="product-actions"><div class="left"><button class="btn small" type="button" data-action="duplicate">复制产品</button><button class="btn small" type="button" data-action="focus-result">查看排名</button></div><div class="right"><button class="btn small danger" type="button" data-action="delete">删除</button></div></div></div></details>'
+      }
+
+      function field(key,label,unit,value,step){
+        const limits={qty:' min="1"',testUnitPrice:' min="0"',cartons:' min="1"',length:' min="0"',width:' min="0"',height:' min="0"',grossPerCarton:' min="0"',batchVolume:' min="0"',batchGross:' min="0"',confirmedChargeable:' min="0"',manualSeaCost:' min="0"',successRate:' min="0" max="100"',dailySales:' min="0"',sellingExVat:' min="0"',bulkPrice:' min="0"',otherVariable:' min="0"',days:' min="0"',optionValue:' min="0"'};
+        return '<div class="field"><label>'+esc(label)+'</label><div class="input-wrap"><input data-field="'+key+'" type="number" step="'+(step||'any')+'"'+(limits[key]||'')+' inputmode="decimal" value="'+valueAttr(value)+'">'+(unit?'<span class="unit">'+esc(unit)+'</span>':'')+'</div></div>'
+      }
+
+      function renderProducts(){
+        const box=$('#products');
+        if(!state.products.length){box.innerHTML='<div class="empty"><b>还没有产品</b>点击“添加产品”开始计算。</div>';return}
+        box.innerHTML=state.products.map(productCard).join('')
+      }
+
+      function globalValidationMessages(){
+        const g=state.globals;
+        const errors=[];
+        if(!hasNumber(g.airRate)||n(g.airRate)<=0)errors.push('空运单价必须大于0');
+        if(!hasNumber(g.divisor)||n(g.divisor)<=0)errors.push('抛重除数必须大于0');
+        if(!hasNumber(g.rounding)||n(g.rounding)<=0)errors.push('计费重进位必须大于0');
+        if(!hasNumber(g.airFixed)||n(g.airFixed)<0)errors.push('空运其他费用不得为负数');
+        if(!hasNumber(g.seaFixed)||n(g.seaFixed)<0)errors.push('海运其他费用不得为负数');
+        if(['max','volume','weight'].includes(g.seaMode)){
+          if(!hasNumber(g.seaUsd)||n(g.seaUsd)<0)errors.push('整柜费用必须填写且不得为负数');
+          if(!hasNumber(g.fx)||n(g.fx)<=0)errors.push('美元汇率必须大于0');
+        }
+        if(['max','volume'].includes(g.seaMode)&&(!hasNumber(g.volumeCapacity)||n(g.volumeCapacity)<=0))errors.push('有效装载体积必须大于0');
+        if(['max','weight'].includes(g.seaMode)&&(!hasNumber(g.weightCapacity)||n(g.weightCapacity)<=0))errors.push('有效装载重量必须大于0');
+        if(!hasNumber(g.defaultDays)||n(g.defaultDays)<0)errors.push('默认有效提前天数不得为空或为负数');
+        if(!hasNumber(g.strongThreshold)||n(g.strongThreshold)<0||!hasNumber(g.candidateThreshold)||n(g.candidateThreshold)<0)errors.push('AAI阈值必须填写且不得为负数');
+        else if(n(g.strongThreshold)<n(g.candidateThreshold))errors.push('强优先阈值不能低于候选阈值');
+        if(!hasNumber(g.selectionThreshold)||n(g.selectionThreshold)<0)errors.push('最低入选AAI必须填写且不得为负数');
+        if(g.balanceMode==='budget'&&g.budget!==''&&(!hasNumber(g.budget)||n(g.budget)<0))errors.push('空运增量预算不得为负数');
+        if(g.balanceMode==='topN'&&(!hasNumber(g.topN)||!Number.isInteger(n(g.topN))||n(g.topN)<1))errors.push('最多选择数量必须为正整数');
+        return errors
+      }
+      function validateGlobals(){return globalValidationMessages().length===0}
+      function updateGlobalErrors(){const el=$('#globalErrors');if(!el)return;const errors=globalValidationMessages();el.hidden=!errors.length;el.textContent=errors.length?'请修正全局参数：'+errors.join('；'):' '}
+
+      function calculate(p){
+        const g=state.globals;
+        let volume=0,gross=0,volumeWeight=0,chargeable=0;
+        const cartons=Math.max(0,Math.floor(n(p.cartons)));
+        if(p.packMode==='batch'){
+          volume=Math.max(0,n(p.batchVolume));gross=Math.max(0,n(p.batchGross));volumeWeight=volume*1000000/n(g.divisor,6000);chargeable=roundUp(Math.max(gross,volumeWeight),n(g.rounding,.5));
+        }else{
+          const l=Math.max(0,n(p.length)),w=Math.max(0,n(p.width)),h=Math.max(0,n(p.height)),boxGross=Math.max(0,n(p.grossPerCarton));
+          const boxVolWeight=l*w*h/n(g.divisor,6000);volume=cartons*l*w*h/1000000;gross=cartons*boxGross;volumeWeight=cartons*boxVolWeight;chargeable=cartons*roundUp(Math.max(boxGross,boxVolWeight),n(g.rounding,.5));
+        }
+        if(n(p.confirmedChargeable)>0)chargeable=n(p.confirmedChargeable);
+        const air=chargeable*n(g.airRate)+n(g.airFixed);
+        const container=n(g.seaUsd)*n(g.fx);
+        const volumeShare=n(g.volumeCapacity)>0?volume/n(g.volumeCapacity):0;
+        const weightShare=n(g.weightCapacity)>0?gross/n(g.weightCapacity):0;
+        let seaLine=0,seaBasis='柜内空位';
+        if(g.seaMode==='manual'){seaLine=Math.max(0,n(p.manualSeaCost));seaBasis='手工海运成本'}
+        else if(g.seaMode==='volume'){seaLine=container*volumeShare;seaBasis='体积占柜'}
+        else if(g.seaMode==='weight'){seaLine=container*weightShare;seaBasis='重量占柜'}
+        else if(g.seaMode==='zero'){seaLine=0;seaBasis='柜内空位'}
+        else{seaLine=container*Math.max(volumeShare,weightShare);seaBasis=volumeShare>=weightShare?'体积限制':'重量限制'}
+        const sea=seaLine+n(g.seaFixed);
+        const delta=air-sea;
+        const margin=p.marginMode==='manual'?n(p.manualMargin):n(p.sellingExVat)-n(p.bulkPrice)-n(p.otherVariable);
+        const days=p.days===''?n(g.defaultDays):n(p.days);
+        const probability=Math.min(1,Math.max(0,n(p.successRate)/100));
+        const demandFactor=g.demandBasis==='conditional'?probability:1;
+        const optionValue=Math.max(0,n(p.optionValue));
+        const expectedValue=Math.max(0,demandFactor*Math.max(0,n(p.dailySales))*Math.max(0,margin)*Math.max(0,days)+optionValue);
+        let aai=0;if(delta<=0&&expectedValue>0)aai=Infinity;else if(delta>0)aai=expectedValue/delta;
+        const net=expectedValue-delta;
+        const packCountValid=p.packMode!=='carton'||(hasNumber(p.cartons)&&Number.isInteger(n(p.cartons))&&n(p.cartons)>0);
+        const marginFieldsValid=p.marginMode==='manual'?hasNumber(p.manualMargin):hasNumber(p.sellingExVat)&&n(p.sellingExVat)>=0&&hasNumber(p.bulkPrice)&&n(p.bulkPrice)>=0&&hasNumber(p.otherVariable)&&n(p.otherVariable)>=0;
+        const manualSeaValid=g.seaMode!=='manual'||hasNumber(p.manualSeaCost)&&n(p.manualSeaCost)>=0;
+        const daysValid=p.days===''||hasNumber(p.days);
+        const valid=validateGlobals()&&String(p.name||'').trim()!==''&&hasNumber(p.qty)&&Number.isInteger(n(p.qty))&&n(p.qty)>0&&hasNumber(p.testUnitPrice)&&n(p.testUnitPrice)>=0&&packCountValid&&volume>0&&gross>0&&chargeable>0&&hasNumber(p.successRate)&&n(p.successRate)>=0&&n(p.successRate)<=100&&hasNumber(p.dailySales)&&n(p.dailySales)>=0&&marginFieldsValid&&manualSeaValid&&daysValid&&days>=0;
+        let recommendation='数据不完整',statusClass='review';
+        if(p.transportRule==='blocked'){recommendation='禁止空运';statusClass='blocked'}
+        else if(!valid){recommendation='数据不完整';statusClass='review'}
+        else if(p.transportRule==='required'){recommendation='必须空运';statusClass='dominant'}
+        else if(delta<=0){recommendation='空运成本占优';statusClass='dominant'}
+        else if(margin<=0){recommendation='先复核利润';statusClass='review'}
+        else if(expectedValue<=0){recommendation='没有加速价值';statusClass='sea'}
+        else if(aai>=n(g.strongThreshold)){recommendation='强优先空运';statusClass='strong'}
+        else if(aai>=n(g.candidateThreshold)){recommendation='候选空运';statusClass='candidate'}
+        else{recommendation='原则上海运';statusClass='sea'}
+        const denomP=Math.max(0,n(p.dailySales))*Math.max(0,margin)*Math.max(0,days);
+        const valueGap=Math.max(0,delta-optionValue);
+        const breakEvenProb=g.demandBasis==='conditional'&&delta>0&&denomP>0?valueGap/denomP:null;
+        const denomD=(g.demandBasis==='conditional'?probability:1)*Math.max(0,n(p.dailySales))*Math.max(0,margin);
+        const breakEvenDays=delta>0&&denomD>0?valueGap/denomD:null;
+        const weightBasis=n(p.confirmedChargeable)>0?'使用货代确认计费重':(volumeWeight>gross?'抛重计费':'实重计费');
+        return {p:p,valid:valid,volume:volume,gross:gross,volumeWeight:volumeWeight,chargeable:chargeable,weightBasis:weightBasis,air:air,sea:sea,seaBasis:seaBasis,delta:delta,margin:margin,days:days,probability:probability,expectedValue:expectedValue,aai:aai,net:net,recommendation:recommendation,statusClass:statusClass,breakEvenProb:breakEvenProb,breakEvenDays:breakEvenDays,testPurchase:n(p.qty)*n(p.testUnitPrice),throwRatio:gross>0?chargeable/gross:null}
+      }
+
+      function compareCalc(a,b){
+        const aa=a.aai===Infinity?1e99:a.aai,bb=b.aai===Infinity?1e99:b.aai;
+        if(bb!==aa)return bb-aa;if(b.net!==a.net)return b.net-a.net;return b.expectedValue-a.expectedValue
+      }
+
+      function buildPlan(calcs){
+        const g=state.globals,sorted=calcs.filter(function(c){return c.valid}).slice().sort(compareCalc),selected=new Set(),required=sorted.filter(function(c){return c.p.transportRule==='required'}),blocked=new Set(sorted.filter(function(c){return c.p.transportRule==='blocked'}).map(function(c){return c.p.id}));
+        required.forEach(function(c){selected.add(c.p.id)});
+        const eligible=sorted.filter(function(c){return !blocked.has(c.p.id)&&c.p.transportRule!=='required'&&(c.delta<=0||(c.expectedValue>0&&c.aai>=n(g.selectionThreshold,1)))});
+        if(g.balanceMode==='topN'){
+          const target=Math.max(required.length,Math.floor(n(g.topN)));
+          eligible.forEach(function(c){if(selected.size<target)selected.add(c.p.id)})
+        }else{
+          const unlimited=g.budget===''||g.budget===null||!Number.isFinite(Number(g.budget));
+          const budget=unlimited?Infinity:Math.max(0,n(g.budget));
+          let used=required.reduce(function(sum,c){return sum+Math.max(0,c.delta)},0);
+          eligible.forEach(function(c){const cost=Math.max(0,c.delta);if(cost<=0||unlimited||roundMoney(used+cost)<=roundMoney(budget)){selected.add(c.p.id);used+=cost}})
+        }
+        return {selected:selected,sorted:sorted}
+      }
+
+      function renderResults(){
+        const all=state.products.map(calculate),plan=buildPlan(all),sorted=plan.sorted,chosen=sorted.filter(function(c){return plan.selected.has(c.p.id)});
+        const totalTest=all.reduce(function(s,c){return s+c.testPurchase},0),totalDelta=chosen.reduce(function(s,c){return s+Math.max(0,c.delta)},0),totalValue=chosen.reduce(function(s,c){return s+c.expectedValue},0),totalNet=chosen.reduce(function(s,c){return s+c.net},0),strong=all.filter(function(c){return c.valid&&c.aai>=n(state.globals.strongThreshold)&&c.p.transportRule!=='blocked'}).length;
+        $('#mobilePlan').textContent=chosen.length+' 个空运 · '+money(totalDelta);
+        const summaries='<div class="summary-cards">'+summaryCard('有效SKU',sorted.length+'个')+summaryCard('强优先产品',strong+'个')+summaryCard('当前选择空运',chosen.length+'个',true)+summaryCard('空运增量成本',money(totalDelta))+summaryCard('预期提前价值',money(totalValue))+summaryCard('预期净价值',money(totalNet),true)+summaryCard('测试采购预算',money(totalTest))+summaryCard('最后入选AAI',chosen.length?aaiText(chosen[chosen.length-1].aai):'—')+'</div>';
+        if(!state.products.length){$('#results').innerHTML=summaries+'<div class="empty"><b>等待产品数据</b>添加产品后会自动生成排名。</div>';return}
+        let budgetStatus='不限制';
+        if(state.globals.balanceMode==='budget'&&state.globals.budget!==''){
+          const remaining=roundMoney(n(state.globals.budget)-totalDelta);
+          budgetStatus=remaining>=0?money(remaining)+' 剩余':money(Math.abs(remaining))+' 超支（必须空运项）';
+        }
+        const balance='<div class="balance-panel"><div class="balance-controls"><h3>平衡点控制</h3><p>“必须空运”和“禁止空运”优先于自动方案。预算模式按AAI从高到低检查，放不下的产品会跳过并继续检查后续较低成本项；这是快速近似组合。</p><div class="field-grid"><div class="field"><label>选择方式</label><select data-result-global="balanceMode"><option value="budget"'+sel(state.globals.balanceMode,'budget')+'>按增量预算</option><option value="topN"'+sel(state.globals.balanceMode,'topN')+'>最多选择N个</option></select></div>'+(state.globals.balanceMode==='budget'?fieldResult('budget','空运增量预算','元',state.globals.budget,'留空不限制'):fieldResult('topN','最多选择N个','个',state.globals.topN,'仅选达到最低AAI的产品'))+fieldResult('selectionThreshold','最低入选AAI','',state.globals.selectionThreshold,'建议≥1')+'</div><div class="balance-output"><div>当前增量成本<b>'+money(totalDelta)+'</b></div><div>预计净价值<b>'+money(totalNet)+'</b></div><div>入选产品<b>'+chosen.length+' / '+sorted.length+'</b></div><div>预算状态<b>'+esc(budgetStatus)+'</b></div></div></div><div class="chart-card"><h3>AAI 优先级分布</h3><p>条形越长，代表每1元空运增量成本换回的预期提前价值越高。</p>'+chart(sorted)+'</div></div>';
+        const tableRows=sorted.map(function(c,i){return resultRow(c,i,plan.selected.has(c.p.id))}).join('');
+        const table='<div class="results-table-wrap"><table><thead><tr><th>排名</th><th>产品</th><th>AAI</th><th>指标建议</th><th>当前方案</th><th>提前价值</th><th>空运成本</th><th>海运成本</th><th>增量成本</th><th>净价值</th><th>计费重</th><th>抛重</th></tr></thead><tbody>'+tableRows+'</tbody></table></div>';
+        const mobile='<div class="mobile-results">'+sorted.map(function(c,i){return mobileResult(c,i,plan.selected.has(c.p.id))}).join('')+'</div>';
+        $('#results').innerHTML=summaries+balance+table+mobile;
+        updateProductSummaries(sorted)
+      }
+
+      function summaryCard(label,value,emphasis){return '<div class="summary-card'+(emphasis?' emphasis':'')+'"><span>'+esc(label)+'</span><b>'+esc(value)+'</b></div>'}
+      function fieldResult(key,label,unit,value,help){const limits={budget:' min="0"',topN:' min="1"',selectionThreshold:' min="0"'},step=key==='topN'?'1':'any';return '<div class="field"><label>'+esc(label)+'</label><div class="input-wrap"><input data-result-global="'+key+'" type="number" step="'+step+'"'+(limits[key]||'')+' inputmode="decimal" value="'+valueAttr(value)+'">'+(unit?'<span class="unit">'+esc(unit)+'</span>':'')+'</div><small>'+esc(help)+'</small></div>'}
+      function chart(sorted){
+        if(!sorted.length)return '<div class="empty">暂无有效产品</div>';
+        const finite=sorted.filter(function(c){return Number.isFinite(c.aai)}),max=Math.max(1,...finite.map(function(c){return c.aai}));
+        return '<div class="chart-list">'+sorted.slice(0,12).map(function(c){const width=c.aai===Infinity?100:Math.max(2,Math.min(100,c.aai/max*100));return '<div class="chart-row"><div class="chart-name" title="'+esc(c.p.name)+'">'+esc(c.p.name)+'</div><div class="bar-track"><div class="bar '+c.statusClass+'" style="width:'+width+'%"></div></div><div class="chart-value">'+aaiText(c.aai)+'</div></div>'}).join('')+'</div>'
+      }
+      function resultRow(c,index,selected){return '<tr class="'+(selected?'selected':'')+'"><td>'+(index+1)+'</td><td class="name-cell"><b>'+esc(c.p.name)+'</b><span>'+esc(c.p.sku)+' · '+esc(c.p.category||'未分类')+'</span></td><td class="aai">'+aaiText(c.aai)+'</td><td><span class="status '+c.statusClass+'">'+esc(c.recommendation)+'</span></td><td class="'+(selected?'plan-air':'plan-sea')+'">'+(selected?'空运':'海运')+'</td><td>'+money(c.expectedValue)+'</td><td>'+money(c.air)+'</td><td>'+money(c.sea)+'</td><td>'+money(c.delta)+'</td><td>'+money(c.net)+'</td><td>'+fmt(c.chargeable,2)+'kg</td><td>'+fmt(c.throwRatio,2)+'×</td></tr>'}
+      function mobileResult(c,index,selected){
+        const explanation='预计提前价值 '+money(c.expectedValue)+'，空运比海运'+(c.delta>=0?'多 '+money(c.delta):'少 '+money(Math.abs(c.delta)))+'，因此 AAI 为 '+aaiText(c.aai)+'。计费重 '+fmt(c.chargeable,2)+'kg，'+c.weightBasis+'。盈亏平衡成功率 '+(c.breakEvenProb===null?'—':pct(c.breakEvenProb))+'，盈亏平衡提前天数 '+(c.breakEvenDays===null?'—':fmt(c.breakEvenDays,1)+'天')+'。';
+        return '<div class="mobile-result"><div class="mobile-result-head"><div><h4>'+(index+1)+'. '+esc(c.p.name)+'</h4><div class="sku">'+esc(c.p.sku)+' · 当前方案：'+(selected?'空运':'海运')+'</div></div><span class="status '+c.statusClass+'">'+esc(c.recommendation)+'</span></div><div class="mobile-result-grid"><div>AAI<b>'+aaiText(c.aai)+'</b></div><div>预期净价值<b>'+money(c.net)+'</b></div><div>空运 / 海运<b>'+money(c.air)+' / '+money(c.sea)+'</b></div><div>增量成本<b>'+money(c.delta)+'</b></div></div><div class="explanation">'+esc(explanation)+'</div></div>'
+      }
+
+      function updateProductSummaries(sorted){
+        const rank={};sorted.forEach(function(c,i){rank[c.p.id]=i+1});
+        state.products.forEach(function(p){
+          const c=calculate(p),a=$('#aai-'+p.id),s=$('#status-'+p.id),r=$('#rank-'+p.id),t=$('#title-'+p.id),meta=$('#meta-'+p.id),test=$('#test-'+p.id),shipping=$('#shipping-'+p.id),business=$('#business-'+p.id);
+          if(a)a.textContent=aaiText(c.valid?c.aai:NaN);
+          if(s){s.textContent=c.recommendation;s.className='status '+c.statusClass}
+          if(r)r.textContent=rank[p.id]||'—';
+          if(t)t.textContent=p.name||'未命名产品';
+          if(meta)meta.textContent=(p.sku||'未填SKU')+' · 测试 '+fmt(n(p.qty),0)+' 件';
+          if(test)test.innerHTML='测试采购总额：<b>'+money(c.testPurchase)+'</b><br>该金额仅用于首批预算，不参与AAI排序。';
+          if(shipping)shipping.innerHTML='总体积 <b>'+fmt(c.volume,4)+'m³</b> · 总实重 <b>'+fmt(c.gross,2)+'kg</b><br>体积重 <b>'+fmt(c.volumeWeight,2)+'kg</b> · 计费重 <b>'+fmt(c.chargeable,2)+'kg</b> · '+esc(c.weightBasis)+'<br>空运 <b>'+money(c.air)+'</b> · 海运 <b>'+money(c.sea)+'</b> · 海运口径：'+esc(c.seaBasis);
+          if(business)business.innerHTML='正常大货单件贡献：<b>'+money(c.margin)+'</b><br>有效提前天数：<b>'+fmt(c.days,1)+'天</b> · 预期提前价值：<b>'+money(c.expectedValue)+'</b><br>盈亏平衡成功率：<b>'+(c.breakEvenProb===null?'—':pct(c.breakEvenProb))+'</b> · 盈亏平衡提前天数：<b>'+(c.breakEvenDays===null?'—':fmt(c.breakEvenDays,1)+'天')+'</b>';
+        })
+      }
+
+      function recalculate(){save();updateGlobalErrors();renderResults()}
+      function renderAll(){renderGlobals();renderProducts();renderResults()}
+
+      document.addEventListener('input',function(event){
+        const g=event.target.dataset.global;if(g){state.globals[g]=event.target.value;recalculate();return}
+        const rg=event.target.dataset.resultGlobal;if(rg){state.globals[rg]=event.target.value;save();return}
+        const fieldName=event.target.dataset.field;if(fieldName){const card=event.target.closest('[data-id]'),p=card&&state.products.find(function(x){return x.id===card.dataset.id});if(!p)return;p[fieldName]=event.target.value;if(fieldName==='name'){const title=$('#title-'+p.id);if(title)title.textContent=p.name||'未命名产品'}recalculate()}
+      });
+      document.addEventListener('change',function(event){
+        const g=event.target.dataset.global;if(g){state.globals[g]=event.target.value;renderAll();return}
+        const rg=event.target.dataset.resultGlobal;if(rg){state.globals[rg]=event.target.value;renderAll();save();return}
+        const fieldName=event.target.dataset.field;if(fieldName){const card=event.target.closest('[data-id]'),p=card&&state.products.find(function(x){return x.id===card.dataset.id});if(!p)return;p[fieldName]=event.target.value;if(['packMode','marginMode'].includes(fieldName))renderProducts();recalculate()}
+      });
+      document.addEventListener('click',function(event){
+        const action=event.target.dataset.action;if(!action)return;const card=event.target.closest('[data-id]'),index=card?state.products.findIndex(function(x){return x.id===card.dataset.id}):-1;if(index<0)return;
+        if(action==='delete'){if(!confirm('确定删除这个产品吗？'))return;state.products.splice(index,1);renderAll();save();toast('产品已删除')}
+        if(action==='duplicate'){const copy=JSON.parse(JSON.stringify(state.products[index]));copy.id=uid();copy.sku=(copy.sku||'SKU')+'-COPY';copy.name=(copy.name||'未命名产品')+'（复制）';state.products.splice(index+1,0,copy);renderAll();save();toast('已复制产品')}
+        if(action==='focus-result'){$('#resultsSection').scrollIntoView({behavior:'smooth'})}
+      });
+
+      $('#addProductBtn').addEventListener('click',function(){state.products.push(blankProduct(state.products.length+1));renderAll();save();setTimeout(function(){const cards=$$('.product-card');if(cards.length)cards[cards.length-1].scrollIntoView({behavior:'smooth',block:'center'})},50)});
+      $('#sampleBtn').addEventListener('click',function(){if(state.products.length&& !confirm('加载示例会替换当前产品数据，是否继续？'))return;state.products=sampleProducts();renderAll();save();toast('示例数据已加载')});
+      $('#clearBtn').addEventListener('click',function(){if(!confirm('确定清空全部产品数据吗？全局参数会保留。'))return;state.products=[];renderAll();save();toast('产品数据已清空')});
+
+      $('#exportDataBtn').addEventListener('click',function(){download('新品空运优先级-参数-'+dateStamp()+'.json',JSON.stringify(state,null,2),'application/json;charset=utf-8');toast('参数文件已导出')});
+      $('#importBtn').addEventListener('click',function(){$('#importFile').click()});
+      $('#importFile').addEventListener('change',function(event){const file=event.target.files&&event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(){try{const incoming=JSON.parse(reader.result);if(!incoming||!incoming.globals||!Array.isArray(incoming.products))throw new Error('格式错误');if(state.products.length&&!confirm('导入将替换当前 '+state.products.length+' 个产品，是否继续？'))return;state={version:STATE_VERSION,globals:normalizeGlobals(incoming.globals),products:incoming.products.map(normalizeProduct)};renderAll();save();toast('数据导入成功')}catch(error){alert('无法导入：文件格式不正确。')}};reader.readAsText(file);event.target.value=''});
+      $('#exportCsvBtn').addEventListener('click',function(){
+        const all=state.products.map(calculate),plan=buildPlan(all),rank={};plan.sorted.forEach(function(c,i){rank[c.p.id]=i+1});
+        const headers=['排名','SKU','产品名称','类目','当前方案','指标建议','AAI','预期提前价值','空运成本','海运成本','空海运增量成本','预期净价值','总体积m3','总实重kg','体积重kg','计费重kg','抛重倍数','测试数量','测试采购单价','测试采购总额','成功率%','日销量','单件贡献利润','有效提前天数','盈亏平衡成功率%','盈亏平衡提前天数'];
+        const rows=all.filter(function(c){return c.valid}).sort(compareCalc).map(function(c){return [rank[c.p.id],c.p.sku,c.p.name,c.p.category,plan.selected.has(c.p.id)?'空运':'海运',c.recommendation,c.aai===Infinity?'INF':c.aai,c.expectedValue,c.air,c.sea,c.delta,c.net,c.volume,c.gross,c.volumeWeight,c.chargeable,c.throwRatio,c.p.qty,c.p.testUnitPrice,c.testPurchase,c.p.successRate,c.p.dailySales,c.margin,c.days,c.breakEvenProb===null?'':c.breakEvenProb*100,c.breakEvenDays===null?'':c.breakEvenDays]});
+        const csv='\ufeff'+[headers].concat(rows).map(function(row){return row.map(function(v){let cell=String(v===undefined||v===null?'':v);if(typeof v==='string'&&/^[=+\-@]/.test(cell))cell="'"+cell;return '"'+cell.replace(/"/g,'""')+'"'}).join(',')}).join('\n');download('新品空运优先级-结果-'+dateStamp()+'.csv',csv,'text/csv;charset=utf-8');toast('结果CSV已导出')
+      });
+
+      function dateStamp(){const d=new Date();return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')}
+
+      renderAll();
+    })();
+  </script>
+</body>
+</html>
